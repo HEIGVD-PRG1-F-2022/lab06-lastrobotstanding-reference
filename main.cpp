@@ -3,15 +3,25 @@
 #include "RobotSmart.cpp"
 #include "RobotWait.cpp"
 #include <iostream>
+#include "robots/all.cpp"
 
 using namespace std;
 
 void game() {
     Game G;
-    for (int i = 0; i < 3; i++) {
+    if (true){
         G.addRobot(new RobotDiagonal());
         G.addRobot(new RobotSmart());
         G.addRobot(new RobotWait());
+        for (const auto &robot: students()){
+            G.addRobot(robot);
+        }
+    } else {
+        for (int i = 0; i < 3; i++) {
+            G.addRobot(new RobotDiagonal());
+            G.addRobot(new RobotSmart());
+            G.addRobot(new RobotWait());
+        }
     }
     auto winner = G.play();
     cout << Display::DString(Display::Color::YELLOW);

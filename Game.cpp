@@ -51,7 +51,7 @@ class Game {
                     if (defender.isDead()) {
                         continue;
                     }
-                    defender.actionAttack(defender, destination);
+                    defender.actionAttack(attacker, destination);
                 }
             }
         }
