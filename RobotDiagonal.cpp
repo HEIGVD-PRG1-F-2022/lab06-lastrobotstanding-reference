@@ -1,11 +1,11 @@
-#include <librobots.h>
+#include <librobots/Robot.h>
 
-class RobotRandom : public Robot {
+class RobotDiagonal : public Robot {
     size_t width = 0, height = 0;
     unsigned energy = 0, power = 0;
 
 public:
-    RobotRandom()= default;
+    RobotDiagonal() = default;
 
     void setConfig(size_t init_width, size_t init_height, unsigned init_energy,
                    unsigned init_power) override {
@@ -16,11 +16,8 @@ public:
     }
 
     std::string action(std::vector<std::string> updates) override {
-        if (updates.size() > 1){
-            return "move 1,-1";
-        } else {
-            return "move 1,1";
-        }
+        (void)updates;
+        return "move 1,1";
     };
 
     [[nodiscard]] std::string name() const override {

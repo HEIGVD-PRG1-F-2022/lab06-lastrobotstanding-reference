@@ -1,8 +1,8 @@
-#include "Bonus.h"
-#include "RobotState.h"
 #include <algorithm>
 #include <libdio/display.h>
-#include <librobots.h>
+#include <librobots/Bonus.h>
+#include <librobots/Message.h>
+#include <librobots/RobotState.h>
 #include <random>
 #include <thread>
 #include <vector>
@@ -25,6 +25,10 @@ class Game {
 
     friend void testGame();
 
+    long robotsAlive() {
+        return count_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });
+    }
+
     void waitListToArena() {
         if (waitList.empty()) {
             throw runtime_error("No robot waiting for the arena");
@@ -35,25 +39,29 @@ class Game {
         }
     }
 
-    void buryRobots() {
-        robots.erase(remove_if(robots.begin(), robots.end(), [](const RobotState &rs) { return rs.isDead(); }), robots.end());
-    }
-
     void actionAttack() {
-        for (auto attacker: robots) {
+        for (const auto &attacker: robots) {
+            if (attacker.isDead()) {
+                continue;
+            }
             Message act = attacker.getAction();
             if (act.msg == MessageType::ActionAttack) {
                 auto destination = attacker.getPosition() + act.robots.at(0);
                 for (auto &defender: robots) {
+                    if (defender.isDead()) {
+                        continue;
+                    }
                     defender.actionAttack(defender, destination);
                 }
             }
         }
-        buryRobots();
     }
 
     void actionMove() {
         for (auto &robot: robots) {
+            if (robot.isDead()) {
+                continue;
+            }
             Message act = robot.getAction();
             if (act.msg == MessageType::ActionMove) {
                 robot.actionMove(act.robots.at(0).unitary());
@@ -64,18 +72,27 @@ class Game {
                 if (i == j) {
                     continue;
                 }
+                if (robots.at(i).isDead() || robots.at(j).isDead()) {
+                    continue;
+                }
                 robots.at(i).checkCollision(robots.at(j));
             }
         }
-        positions.resize(robots.size());
-        transform(robots.begin(), robots.end(), positions.begin(), [](const RobotState &s) { return s.getPosition(); });
-
-        buryRobots();
+        positions.clear();
+        for (const auto& robot: robots){
+            if (robot.isDead()){
+                continue;
+            }
+            positions.push_back(robot.getPosition());
+        }
     }
 
     void actionRadar() {
         radar.clear();
         for (auto &robot: robots) {
+            if (robot.isDead()) {
+                continue;
+            }
             Message act = robot.getAction();
             if (act.msg == MessageType::ActionRadar) {
                 robot.actionRadar(positions);
@@ -86,27 +103,33 @@ class Game {
 
     void createBonus() {
         if (bonusTimeout-- == 0) {
-            bonusTimeout = BONUS_RECURRENCE;
+            bonusTimeout = BONUS_RECURRENCE / unsigned(robotsAlive());
             std::random_device rd;
             std::uniform_int_distribution<int> type(0, 1);
             int newType = type(rd);
-            Bonus newBonus;
+            Bonus *newBonus;
             do {
                 if (newType == 0) {
-                    newBonus = Bonus(side, side, BonusType::Energy, uniform_int_distribution<unsigned>(0, 9)(rd));
+                    newBonus = new Bonus(side, side, 10, BonusType::Energy);
                 } else {
-                    newBonus = Bonus(side, side, BonusType::Power, uniform_int_distribution<unsigned>(0, 3)(rd));
+                    newBonus = new Bonus(side, side, 3, BonusType::Power);
                 }
-            } while (find_if(boni.begin(), boni.end(), [newBonus](Bonus b) -> bool { return b.pos == newBonus.pos; }) != boni.end());
+            } while (find_if(boni.begin(), boni.end(), [newBonus](Bonus b) -> bool { return b.pos == newBonus->pos; }) != boni.end());
             for (auto &robot: robots) {
-                robot.actionBonus(newBonus.pos);
+                if (robot.isDead()) {
+                    continue;
+                }
+                robot.actionBonus(newBonus->pos);
             }
-            boni.push_back(newBonus);
+            boni.push_back(*newBonus);
         }
     }
 
     void checkBonus() {
         for (auto &robot: robots) {
+            if (robot.isDead()) {
+                continue;
+            }
             auto b = find_if(boni.begin(), boni.end(), [robot](Bonus b) -> bool { return b.pos == robot.getPosition(); });
             if (b != boni.end()) {
                 switch (b->type) {
@@ -124,15 +147,19 @@ class Game {
 
     void sendUpdates() {
         auto updateBoards = Message::updateBoard(positions);
-        for (size_t i = 0; i < robots.size(); i++) {
-            robots.at(i).sendUpdate(updateBoards.at(i));
+        for (auto &robot: robots) {
+            if (robot.isDead()) {
+                continue;
+            }
+            robot.sendUpdate(updateBoards.front());
+            updateBoards.erase(updateBoards.begin());
         }
     }
 
     void display_debug() {
         cout << endl
              << "Robots: ";
-        for (auto robot: robots) {
+        for (const auto &robot: robots) {
             cout << robot.getPosition() << " :: ";
         }
         cout << endl
@@ -144,20 +171,29 @@ class Game {
     }
 
     void display() {
-        vector<vector<string>> grid(side, vector<string>(side));
-        char robotNbr = '1';
-        for (const auto &robot: robots) {
+        vector<vector<Display::DString>> grid(side, vector<Display::DString>(side));
+        for (char robotNbr = '0'; const auto &robot: robots) {
+            robotNbr++;
+            if (robot.isDead()) {
+                continue;
+            }
             auto pos = robot.getPosition();
-            grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = robotNbr++;
+            grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << string(&robotNbr);
         }
         for (const auto &bonus: boni) {
-            grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = 'B';
+            grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
         }
         Display::clearScreen();
         Display::displayGrid(grid, false).print();
         cout << "Round: " << round++ << endl;
-        for (auto robot: robots) {
-            cout << "Robot: " << robot.name() << " - Energy: " << robot.getEnergy() << " - Power: " << robot.getPower() << endl;
+        for (int i = 1; const auto &robot: robots) {
+            if (robot.isDead()) {
+                cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause()) << endl;
+            } else {
+                cout << (Display::DString(Display::Color::GREEN) << i++ << " - Robot: " << robot.getName() << " - Energy: " << robot.getEnergy()
+                                                                 << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType())
+                     << endl;
+            }
         }
     }
 
@@ -174,7 +210,7 @@ public:
     RobotState *play() {
         Display::init();
         waitListToArena();
-        while (robots.size() > 1) {
+        do {
             actionAttack();
             actionMove();
             actionRadar();
@@ -182,12 +218,12 @@ public:
             checkBonus();
             sendUpdates();
             display();
-            this_thread::sleep_for(100ms);
+            this_thread::sleep_for(100ms / log(round + 2));
+        } while (robotsAlive() > 1);
+
+        if (robotsAlive() == 1) {
+            return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });
         }
-        if (robots.size() == 1) {
-            return &robots.at(0);
-        } else {
-            return nullptr;
-        }
+        return nullptr;
     }
 };

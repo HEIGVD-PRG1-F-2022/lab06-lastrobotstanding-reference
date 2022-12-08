@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <librobots.h>
+#include <librobots/Robot.h>
 
 class RobotSmart : public Robot {
     size_t width = 0, height = 0;
@@ -10,12 +10,15 @@ class RobotSmart : public Robot {
     void updateNearest(Direction dir, bool bonus = false) {
         double distanceNearest = nearestDirection.mag(),
                distance = dir.mag();
-        if (distance < distanceNearest ||
-            distance + nearestCounter < distanceNearest ||
+        if (distance <= 0.5) {
+            throw runtime_error("Nearest with distance 0");
+        }
+        if (distance + nearestCounter < distanceNearest ||
             nearestCounter == 0 ||
             bonus) {
+            cout << "Updating distance with " << dir << endl;
             nearestDirection = dir;
-            nearestCounter = bonus ? 100 : 10;
+            nearestCounter = bonus ? unsigned(width) : 10;
         }
     }
 
@@ -39,14 +42,17 @@ public:
                 case MessageType::UpdateBoard:
                     if (!u.boni.empty()) {
                         sort(u.boni.begin(), u.boni.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
-                        return Message::actionMove(u.boni.at(0).unitary());
+                        updateNearest(u.boni.at(0), true);
                     }
                     if (!u.robots.empty()) {
+                        if (energy < 10) {
+                            return Message::actionMove(u.robots.at(0).neg());
+                        }
                         for (auto robot: u.robots) {
                             if (robot.mag() < 2) {
-                                return Message::actionAttack(robot);
+                                return Message::actionMove(robot.neg().rotate(M_PI / 2));
                             }
-                            updateNearest(u.robots.at(0));
+                            return Message::actionAttack(robot);
                         }
                     }
                     break;
