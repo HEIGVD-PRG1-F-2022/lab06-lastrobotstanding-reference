@@ -16,7 +16,7 @@ class RobotSmart : public Robot {
         if (distance + nearestCounter < distanceNearest ||
             nearestCounter == 0 ||
             bonus) {
-            cout << "Updating distance with " << dir << endl;
+//            cout << "Updating distance with " << dir << endl;
             nearestDirection = dir;
             nearestCounter = bonus ? unsigned(width) : 10;
         }
@@ -34,39 +34,26 @@ public:
     }
 
     std::string action(std::vector<std::string> updates) override {
-        Position p;
+        vector<Direction> robots, boni;
+//        for (const auto &update: updates){
+//            cout << name() << " Update is: " << update << endl;
+//        }
         for (const auto &update: updates) {
-            //            cout << "Update is: " << update << endl;
             Message u(update);
+            robots.insert(robots.end(), u.robots.begin(), u.robots.end());
+            boni.insert(boni.end(), u.boni.begin(), u.boni.end());
             switch (u.msg) {
                 case MessageType::UpdateBoard:
-                    if (!u.boni.empty()) {
-                        sort(u.boni.begin(), u.boni.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
-                        updateNearest(u.boni.at(0), true);
-                    }
-                    if (!u.robots.empty()) {
-                        if (energy < 10) {
-                            return Message::actionMove(u.robots.at(0).neg());
-                        }
-                        for (auto robot: u.robots) {
-                            if (robot.mag() < 2) {
-                                return Message::actionMove(robot.neg().rotate(M_PI / 2));
-                            }
-                            return Message::actionAttack(robot);
-                        }
-                    }
                     break;
                 case MessageType::UpdateDamage:
                     energy -= u.energy;
-                    return Message::actionAttack(u.robots.at(0));
+                    robots.push_back(u.robots.at(0));
                     break;
                 case MessageType::UpdateEnergy:
                     energy += u.energy;
-                    nearestCounter = 0;
                     break;
                 case MessageType::UpdatePower:
                     power += u.power;
-                    nearestCounter = 0;
                     break;
                 case MessageType::UpdateBonus:
                     updateNearest(u.boni.at(0), true);
@@ -78,6 +65,25 @@ public:
                     break;
             }
         }
+
+        if (!boni.empty()) {
+            sort(boni.begin(), boni.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
+            updateNearest(boni.at(0), true);
+        }
+        if (!robots.empty()) {
+            sort(robots.begin(), robots.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
+            if (energy < 10) {
+//                cout << "Going away from " << robots.at(0) << endl;
+                return Message::actionMove(robots.at(0).neg());
+            }
+            for (auto robot: robots) {
+                if (robot.mag() < 2) {
+                    return Message::actionMove(robot.neg().rotate(M_PI / 2));
+                }
+                return Message::actionAttack(robot);
+            }
+        }
+
         if (nearestCounter > 0 && nearestDirection.mag() > 0) {
             --nearestCounter;
             Direction dir = nearestDirection.unitary();

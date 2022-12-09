@@ -13,6 +13,7 @@ class Game {
     const unsigned ENERGY_INIT = 10;
     const unsigned POWER_INIT = 1;
     const unsigned BONUS_RECURRENCE = 100;
+    const unsigned IDLE_LIMIT = 200;
 
     vector<Robot *> waitList;
     vector<RobotState> robots;
@@ -21,7 +22,7 @@ class Game {
     vector<Bonus> boni;
     unsigned bonusTimeout = 1;
     size_t side = 0;
-    unsigned round = 0;
+    unsigned round = 0, idle = 0;
 
     friend void testGame();
 
@@ -51,7 +52,10 @@ class Game {
                     if (defender.isDead()) {
                         continue;
                     }
-                    defender.actionAttack(attacker, destination);
+                    if (destination == defender.getPosition()){
+                        defender.actionAttack(attacker, destination);
+                        idle = 0;
+                    }
                 }
             }
         }
@@ -132,6 +136,7 @@ class Game {
             }
             auto b = find_if(boni.begin(), boni.end(), [robot](Bonus b) -> bool { return b.pos == robot.getPosition(); });
             if (b != boni.end()) {
+                idle = 0;
                 switch (b->type) {
                     case BonusType::Energy:
                         robot.actionEnergy(b->value);
@@ -185,7 +190,7 @@ class Game {
         }
         Display::clearScreen();
         Display::displayGrid(grid, false).print();
-        cout << "Round: " << round++ << endl;
+        cout << "Round: " << round++ << " Idle for: " << idle++ << endl;
         for (int i = 1; const auto &robot: robots) {
             if (robot.isDead()) {
                 cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause()) << endl;
@@ -216,10 +221,10 @@ public:
             actionRadar();
             createBonus();
             checkBonus();
-            sendUpdates();
             display();
+            sendUpdates();
             this_thread::sleep_for(100ms / log(round + 2));
-        } while (robotsAlive() > 1);
+        } while (robotsAlive() > 1 && idle < IDLE_LIMIT);
 
         if (robotsAlive() == 1) {
             return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });

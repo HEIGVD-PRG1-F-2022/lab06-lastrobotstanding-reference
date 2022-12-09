@@ -12,6 +12,7 @@ void game() {
     if (true){
         G.addRobot(new RobotDiagonal());
         G.addRobot(new RobotSmart());
+        G.addRobot(new RobotSmart());
         G.addRobot(new RobotWait());
         for (const auto &robot: students()){
             G.addRobot(robot);
