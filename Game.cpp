@@ -52,7 +52,7 @@ class Game {
                     if (defender.isDead()) {
                         continue;
                     }
-                    if (destination == defender.getPosition()){
+                    if (destination == defender.getPosition()) {
                         defender.actionAttack(attacker, destination);
                         idle = 0;
                     }
@@ -83,8 +83,8 @@ class Game {
             }
         }
         positions.clear();
-        for (const auto& robot: robots){
-            if (robot.isDead()){
+        for (const auto &robot: robots) {
+            if (robot.isDead()) {
                 continue;
             }
             positions.push_back(robot.getPosition());
@@ -151,7 +151,9 @@ class Game {
     }
 
     void sendUpdates() {
-        auto updateBoards = Message::updateBoard(positions);
+        vector<Position> boniPos(boni.size());
+        transform(boni.begin(), boni.end(), boniPos.begin(), [](Bonus b) -> Position { return b.pos; });
+        auto updateBoards = Message::updateBoard(positions, boniPos);
         for (auto &robot: robots) {
             if (robot.isDead()) {
                 continue;

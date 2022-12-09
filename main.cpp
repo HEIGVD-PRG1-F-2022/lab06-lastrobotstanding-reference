@@ -11,6 +11,8 @@ void game() {
     Game G;
     if (true){
         G.addRobot(new RobotDiagonal());
+        G.addRobot(new RobotDiagonal());
+        G.addRobot(new RobotDiagonal());
         G.addRobot(new RobotSmart());
         G.addRobot(new RobotSmart());
         G.addRobot(new RobotWait());

@@ -79,8 +79,9 @@ public:
             for (auto robot: robots) {
                 if (robot.mag() < 2) {
                     return Message::actionMove(robot.neg().rotate(M_PI / 2));
+                } else if (robot.mag() <= 3) {
+                    return Message::actionAttack(robot);
                 }
-                return Message::actionAttack(robot);
             }
         }
 
