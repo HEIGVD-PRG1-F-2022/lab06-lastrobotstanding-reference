@@ -1,0 +1,27 @@
+name: Releasing Objects
+
+on: [push]
+
+jobs:
+  compile:
+    name: Compile .o files and release them
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Compile .o files
+        run: |
+          # Do some mingcc magic here to create correct .o files
+          # Probably easiest to copy/paste from working CLion
+          # Then create a tgz or zip, whichever is easier
+
+# This probably doesn't work
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: objects.tgz
+          asset_name: objects
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "This is my release text"
