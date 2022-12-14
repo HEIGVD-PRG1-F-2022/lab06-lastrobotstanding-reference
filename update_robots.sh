@@ -1,10 +1,11 @@
 #!/bin/bash
 
 STUDENTS_DIR=students/raw
-ROBOTS_DIR=students/robot
+ROBOTS_SUCCESS=$STUDENTS_DIR/compiling.dir
+ROBOTS_DIR=students/robots
 ROBOTS_ALL=$ROBOTS_DIR/all.cpp
-ROBOTS_SUCCESS=$ROBOTS_DIR/compiling.dir
 BASEDIR=$(PWD)
+mkdir -p $ROBOTS_DIR
 
 check_robots() {
   rm -f $ROBOTS_SUCCESS
@@ -34,7 +35,7 @@ add_robots() {
       echo "Got a good robot in $robot with name $NAME"
       NAMES="$NAMES $NAME"
     done
-    cp $robot/*.h $robot/*.cpp robots
+    cp $robot/*.h $robot/*.cpp $ROBOTS_DIR
     for f in $robot/*.cpp; do
       echo "#include \"$(basename $f)\"" >>$ROBOTS_ALL
     done

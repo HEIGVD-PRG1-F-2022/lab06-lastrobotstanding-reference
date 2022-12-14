@@ -2,7 +2,7 @@
 #include "RobotDiagonal.cpp"
 #include "RobotSmart.cpp"
 #include "RobotWait.cpp"
-#include "robots/all.cpp"
+#include "students/robots/all.cpp"
 #include <iostream>
 
 using namespace std;
