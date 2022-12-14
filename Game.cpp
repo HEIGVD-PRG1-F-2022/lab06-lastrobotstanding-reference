@@ -163,13 +163,30 @@ void Game::display_debug() {
 
 void Game::display() {
     vector<vector<Display::DString>> grid(side, vector<Display::DString>(side));
-    for (char robotNbr = '0'; const auto &robot: robots) {
+    for (int robotNbr = 0; const auto &robot: robots) {
         robotNbr++;
         if (robot.isDead()) {
             continue;
         }
         auto pos = robot.getPosition();
-        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << string(&robotNbr);
+        Display::DString robotStr;
+        switch (robot.getAction().msg){
+            case MessageType::ActionMove:
+                robotStr.setColor(Display::Color::GREEN);
+                break;
+            case MessageType::ActionAttack:
+                robotStr.setColor(Display::Color::RED);
+                break;
+            case MessageType::ActionRadar:
+                robotStr.setColor(Display::Color::YELLOW);
+                break;
+            case MessageType::ActionWait:
+                robotStr.setColor(Display::Color::BLUE);
+                break;
+            default:
+                break;
+        }
+        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = robotStr << robotNbr;
     }
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
