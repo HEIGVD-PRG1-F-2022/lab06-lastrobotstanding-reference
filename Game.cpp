@@ -170,7 +170,7 @@ void Game::display() {
         }
         auto pos = robot.getPosition();
         Display::DString robotStr;
-        switch (robot.getAction().msg){
+        switch (robot.getAction().msg) {
             case MessageType::ActionMove:
                 robotStr.setColor(Display::Color::GREEN);
                 break;
@@ -191,17 +191,17 @@ void Game::display() {
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
     }
-    Display::clearScreen();
+    Display::DString().cursorHome().print();
     Display::displayGrid(grid, false).print();
-    cout << "Round: " << round++ << " Idle for: " << idle++ << endl;
+    cout << (Display::DString("Round: ") << round++ << " Idle for: " << idle++).cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     for (int i = 1; const auto &robot: robots) {
         if (robot.isDead()) {
-            cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause()) << endl;
+            cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause());
         } else {
             cout << (Display::DString(Display::Color::GREEN) << i++ << " - Robot: " << robot.getName() << " - Energy: " << robot.getEnergy()
-                                                             << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType())
-                 << endl;
+                                                             << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType());
         }
+        cout << Display::DString().cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     }
 }
 
@@ -214,6 +214,7 @@ void Game::addRobot(Robot *r) {
 
 RobotState *Game::play() {
     Display::init();
+    Display::clearScreen();
     waitListToArena();
     do {
         actionAttack();
