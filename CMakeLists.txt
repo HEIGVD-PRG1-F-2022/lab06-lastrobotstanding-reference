@@ -21,6 +21,6 @@ add_subdirectory(libdio)
 
 #add_library(Game OBJECT Game.cpp)
 #target_link_libraries(Game PRIVATE librobots libdio)
-add_executable(ReferenceGame main.cpp Game.cpp robot/RobotSmart.cpp)
+add_executable(ReferenceGame main.cpp Game.cpp robot/RobotSmart.cpp robot/RobotsSimple.cpp)
 
 target_link_libraries(ReferenceGame PRIVATE librobots libdio)

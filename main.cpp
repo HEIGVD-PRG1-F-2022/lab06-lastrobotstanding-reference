@@ -1,7 +1,6 @@
 #include "Game.h"
-#include "RobotDiagonal.cpp"
-#include "RobotWait.cpp"
 #include "robot/RobotSmart.h"
+#include "robot/RobotsSimple.h"
 #include "students/robots/all.cpp"
 #include <iostream>
 

@@ -15,7 +15,7 @@ vector<Robot*> students(){
   robots.push_back(new RobotFB());
   robots.push_back(new RobotFB_diag());
 //  robots.push_back(new MonRobotGPKD());
-  robots.push_back(new RobotTeamR());
+//  robots.push_back(new RobotTeamR());
   robots.push_back(new SoftIntersRobot());
   return robots;
 }
