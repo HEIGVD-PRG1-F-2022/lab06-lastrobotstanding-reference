@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <librobots/Robot.h>
+#include <cmath>
 
 class RobotSmart : public Robot {
     size_t width = 0, height = 0;
@@ -56,10 +57,8 @@ public:
                     power += u.power;
                     break;
                 case MessageType::UpdateBonus:
-                    updateNearest(u.boni.at(0), true);
                     break;
                 case MessageType::UpdateRobot:
-                    updateNearest(u.robots.at(0));
                     break;
                 default:
                     break;
@@ -82,6 +81,9 @@ public:
                 } else if (robot.mag() <= 3) {
                     return Message::actionAttack(robot);
                 }
+            }
+            if (nearestCounter == 0){
+                updateNearest(robots.at(0));
             }
         }
 
