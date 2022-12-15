@@ -24,7 +24,7 @@ if (EXISTS libdio/)
 else ()
     FetchContent_Declare(libdio
             GIT_REPOSITORY https://github.com/HEIGVD-PRG1-F-2022/libdio.git
-            GIT_TAG cursor_movement
+            GIT_TAG v0.2.3
             )
     FetchContent_MakeAvailable(libdio)
 endif ()
