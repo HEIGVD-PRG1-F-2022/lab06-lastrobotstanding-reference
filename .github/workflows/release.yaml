@@ -18,6 +18,7 @@ jobs:
       - name: Build .obj and zip
         run: |
           cmake --build . --config Release
+          echo "COUCOU"
           Compress-Archive -LiteralPath ReferenceGame.dir -DestinationPath zip/ReferenceGame.zip
 
       - name: Create Release
