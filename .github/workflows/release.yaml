@@ -17,8 +17,8 @@ jobs:
 
       - name: Build .obj and zip
         run: |
-          cmake --build . --config Release
-          Compress-Archive -LiteralPath lab06-lastrobotstanding-reference.dir -DestinationPath zip/lab06-lastrobotstanding-reference.zip
+          cmake --build .
+          Compress-Archive -LiteralPath ReferenceGame.dir -DestinationPath zip/ReferenceGame.zip
 
       - name: Create Release
         id: create_release
@@ -38,6 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_name: ./zip/lab06-lastrobotstanding-reference.zip # path + filename
-          asset_path: ./zip/lab06-lastrobotstanding-reference.zip
+          asset_name: ./zip/ReferenceGame.zip # path + filename
+          asset_path: ./zip/ReferenceGame.zip
           asset_content_type: application/zip
