@@ -169,22 +169,43 @@ void Game::display() {
             continue;
         }
         auto pos = robot.getPosition();
+<<<<<<< HEAD
         grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << robotNbr;
+=======
+        Display::DString robotStr;
+        switch (robot.getAction().msg) {
+            case MessageType::ActionMove:
+                robotStr.setColor(Display::Color::GREEN);
+                break;
+            case MessageType::ActionAttack:
+                robotStr.setColor(Display::Color::RED);
+                break;
+            case MessageType::ActionRadar:
+                robotStr.setColor(Display::Color::YELLOW);
+                break;
+            case MessageType::ActionWait:
+                robotStr.setColor(Display::Color::BLUE);
+                break;
+            default:
+                break;
+        }
+        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = robotStr << robotNbr;
+>>>>>>> 142a8f529f5226c43ec26537db7d7c4a56c43d4b
     }
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
     }
-    Display::clearScreen();
+    Display::DString().cursorHome().print();
     Display::displayGrid(grid, false).print();
-    cout << "Round: " << round++ << " Idle for: " << idle++ << endl;
+    cout << (Display::DString("Round: ") << round++ << " Idle for: " << idle++).cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     for (int i = 1; const auto &robot: robots) {
         if (robot.isDead()) {
-            cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause()) << endl;
+            cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause());
         } else {
             cout << (Display::DString(Display::Color::GREEN) << i++ << " - Robot: " << robot.getName() << " - Energy: " << robot.getEnergy()
-                                                             << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType())
-                 << endl;
+                                                             << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType());
         }
+        cout << Display::DString().cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     }
 }
 
@@ -197,6 +218,7 @@ void Game::addRobot(Robot *r) {
 
 RobotState *Game::play() {
     Display::init();
+    Display::clearScreen();
     waitListToArena();
     do {
         actionAttack();

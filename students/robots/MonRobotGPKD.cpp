@@ -41,7 +41,7 @@ string MonRobotGPKD::action(vector<string> updates){
 }
 
 string MonRobotGPKD::name()const{
-
+ return "gpkd";
 }
 
 void MonRobotGPKD::selectionUpdate(const vector<string> &
