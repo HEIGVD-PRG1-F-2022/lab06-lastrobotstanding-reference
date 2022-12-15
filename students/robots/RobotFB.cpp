@@ -18,8 +18,8 @@ RobotFB::RobotFB() {
 
 }
 
-void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR, int &distR,
-                      std::vector<std::vector<std::string>> &alentour, size_t &energy) {
+void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR,
+                      std::vector<std::vector<std::string>> &alentour) {
     for (std::string lignes: updates) {
 
         //permet de récupérer la string jusqu'à l'espace (donc l'action à effectuer)
@@ -62,16 +62,13 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 }
 
 //return action à effectuer (attaquer, bouger, attendre)
-std::string realisationAction(const int &flagR, int &distR, const int &posRX, const int &posRY, const size_t &energy) {
-    int dX = 0, dY = 0;
-
-    //strategie 1, la violence : s'il y a un robot à porter, on va lui péter la gueule
+std::string realisationAction(const int &flagR, const int &posRX, const int &posRY) {
+    //strategie 1, la violence : s'il y a un robot à porter, on lui pète la gueule
     if (flagR) {
-
         std::string retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
         return retour;
     }
-        //strategie 2, patience: Aucune possibilitée d'attaque car aucun robot autour
+    //strategie 2, patience: Aucune possibilitée d'attaque car aucun robot autour
     else {
         return "wait";
     }
@@ -82,10 +79,10 @@ std::string RobotFB::action(std::vector<std::string> updates) {
     int posRX = 0, posRY = 0;
 
     //traite les actions reçu dans l'update
-    traitementAction(updates, posRX, posRY, flagR, distR, alentour, energy);
+    traitementAction(updates, posRX, posRY, flagR, alentour);
 
     //"décide" de l'action à effectuer
-    std::string action = realisationAction(flagR, distR, posRX, posRY, energy);
+    std::string action = realisationAction(flagR, posRX, posRY);
 
     return action;
 }

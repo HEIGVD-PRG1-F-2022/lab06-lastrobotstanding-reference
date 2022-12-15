@@ -62,26 +62,27 @@ string BorisGuillaumator::action(vector<string> updates) {
                : "attack " + params.at(0) + ',' + params.at(1);
     }
 
-    if (updatesMap["board"].find('R') != string::npos) {
+    // to pass the robot from neutral to agressive just uncomment the next block
+    /*if (updatesMap["board"].find('R') != string::npos) {
         int x, y;
         x = (int) (updatesMap["board"].find('R')) % 5 - 2;
         y = updatesMap["board"].find('R') == 25 ? 2 : (int) updatesMap["board"].find('R') / 5 - 2;
         return "attack " + to_string(x) + "," + to_string(y);
+    }*/
+
+    if ((updatesMap.contains(
+            "board") // normally always contains "board" but, to dodge access exception if not contains it, we test it anyway
+         && updatesMap["board"].find('B') != string::npos)) {
+        int x, y;
+        x = (int) (updatesMap["board"].find('B')) % 5 - 2;
+        y = updatesMap["board"].find('B') == 25 ? 2 : (int) updatesMap["board"].find('B') / 5 - 2;
+        return "move " + to_string(coordToDirection(x)) + "," + to_string(coordToDirection(y));
     }
 
     if (updatesMap.contains("bonus")) {
         int x, y;
         x = stoi(split(updatesMap["bonus"], ",")[0]);
         y = stoi(split(updatesMap["bonus"], ",")[1]);
-        return "move " + to_string(coordToDirection(x)) + "," + to_string(coordToDirection(y));
-    }
-
-    if ((updatesMap.contains(
-            "board") //normally always contains "board" but, to dodge access exception if not contains it, we test it anyway
-         && updatesMap["board"].find('B') != string::npos)) {
-        int x, y;
-        x = (int) (updatesMap["board"].find('B')) % 5 - 2;
-        y = updatesMap["board"].find('B') == 25 ? 2 : (int) updatesMap["board"].find('B') / 5 - 2;
         return "move " + to_string(coordToDirection(x)) + "," + to_string(coordToDirection(y));
     } else {
         random_device rd;

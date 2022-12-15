@@ -17,7 +17,11 @@ Remarque(s)     : <a completer>
 using namespace std;
 
 MonRobot::MonRobot() {
-    str_name = "HeHehE";
+    dx = 0;
+    dy = 0;
+    life = 0;
+    pow = 0;
+    str_name = "Dave et Gui";
 }
 
 void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
@@ -33,7 +37,7 @@ string MonRobot::action(vector<string> updates) {
     vector<vector<char>> board;
     for (auto &s: updates) {
         board = boardStringToVectors(s);
-        if (!board.empty()) {
+        if(!board.empty()){
             break;
         }
     }
@@ -49,7 +53,7 @@ string MonRobot::action(vector<string> updates) {
         return goBackRight();
     }
 
-    return "wait"; //fightFirstTarget(board);
+    return "wait";//fightFirstTarget(board);
 }
 
 string MonRobot::name() const {
@@ -140,24 +144,25 @@ vector<vector<char>> MonRobot::boardStringToVectors(const string &str) {
     return {};
 }
 
-
 string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates) {
 
-    vector<int> coordNearestRobot;
+    vector<int> coordNearestRobot(2);
     int coordResult = 5; //need a number higher than 2 + 2
 
-    for (int x = 0; x < 5; x++) {
-        for (int y = 0; y < 5; y++) {
-            if (enemyCoordinates.at(x).at(y) != 0)
-                if (abs(x) + abs(y) < coordResult) {
-                    coordResult = abs(x) + abs(y);
-                    coordNearestRobot = {x - 2, y - 2};       //relatives coordinates
-                }
+    for (auto coord : enemyCoordinates) {
+        int x = coord.front(), y = coord.back();
+        if (x != 0 || y != 0) {
+            if (abs(x) + abs(y) < coordResult) {
+                coordResult = abs(x) + abs(y);
+                coordNearestRobot.front() = x;
+                coordNearestRobot.back() = y;       //relatives coordinates
+            }
         }
     }
 
 
-    return move(coordNearestRobot.at(0), coordNearestRobot.at(1));
+    return move(coordNearestRobot.front(), coordNearestRobot.back());
 
 }
+
 

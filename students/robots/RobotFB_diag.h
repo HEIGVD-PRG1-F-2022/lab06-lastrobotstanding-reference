@@ -23,14 +23,12 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 class RobotFB_diag : public Robot {
 
-    friend void traitementAction(std::vector<std::string>& updates,std::vector<std::vector<char>>& alentour,size_t& energy);
-    friend std::string realisationAction(const size_t& energy);
+    friend void traitementAction(std::vector<std::string>& updates,std::vector<std::vector<std::string>>& alentour);
+    friend std::string realisationAction();
 
 public:
 
     RobotFB_diag();
-
-    void setConfig(int size_x, int size_y, unsigned energy, unsigned power);
 
     [[nodiscard]] double getEnergy() const {
         return energy;

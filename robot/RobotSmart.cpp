@@ -1,6 +1,7 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "RobotSmart.h"
 #include <algorithm>
-#include <cmath>
 #include <librobots/Direction.h>
 #include <librobots/Message.h>
 #include <librobots/Robot.h>

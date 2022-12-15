@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "robot/RobotSmart.h"
 #include "robot/RobotsSimple.h"
-//#include "students/robots/all.cpp"
+#include "students/robots/all.cpp"
 #include <iostream>
 
 using namespace std;

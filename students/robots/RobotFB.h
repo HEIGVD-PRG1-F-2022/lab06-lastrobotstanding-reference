@@ -25,8 +25,8 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 class RobotFB : public Robot {
 
-    friend void traitementAction(std::vector<std::string>& updates,int& posRX,int& posRY,int& flagR,int& distR,std::vector<std::vector<std::string>>& alentour,size_t& energy);
-    friend std::string realisationAction(const int& flagR,int& distR,const int& posRX,const int& posRY,const size_t& energy);
+    friend void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR,std::vector<std::vector<std::string>> &alentour);
+    friend std::string realisationAction(const int &flagR, const int &posRX, const int &posRY);
 
 public:
 

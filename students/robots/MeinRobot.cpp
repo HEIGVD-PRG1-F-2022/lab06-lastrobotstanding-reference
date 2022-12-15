@@ -91,7 +91,7 @@ void MeinRobot::registerAction(std::vector<std::string> updates)
         //Get Action related
         auto actionType = (RecievedActionType)indexOf(INSTRUCTIONS,action.at(0));
         std::string actionInfo = action.at(1);
-        switch (actionType)
+        switch (actionType) // MUST UPDATE STATE MACHINE
         {
             case RecievedActionType::BOARD:
                 setBoard(actionInfo);
@@ -175,10 +175,8 @@ std::string MeinRobot::strategy()
     {
         case STATE_MACHINE::SEARCH:
             target = bonusState.updateState(mapInfo);
-            //newAction = searchMode();
             break;
         case STATE_MACHINE::KILL:
-//            std::cout << "GOES KILL";
             break;
         case STATE_MACHINE::RETRIEVE:
             //Condition In : target != -1,-1

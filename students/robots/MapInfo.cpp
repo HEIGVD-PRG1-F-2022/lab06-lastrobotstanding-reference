@@ -41,7 +41,6 @@ void MapInfo::registerInRangeObjects()
             else if(value == "B")
             {
                 inRangeBonus.emplace_back(long(x-radiusCheck), long(y-radiusCheck));
-//                std::cout << "bonus at : " << inRangeBonus.at(0) << std::endl;
                 numBonusInRange += 1;
             }
         }
