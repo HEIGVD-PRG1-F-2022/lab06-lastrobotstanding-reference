@@ -9,14 +9,8 @@ using namespace std;
 void game() {
     Game G;
     G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotSmart());
-//    G.addRobot(new RobotSmart());
+    G.addRobot(new RobotSmart());
     G.addRobot(new RobotWait());
-    for (const auto &robot: students()) {
-        G.addRobot(robot);
-    }
     auto winner = G.play();
     cout << Display::DString(Display::Color::YELLOW);
     if (winner == nullptr) {
