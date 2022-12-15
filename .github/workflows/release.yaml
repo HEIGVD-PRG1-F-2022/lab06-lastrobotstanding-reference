@@ -20,7 +20,7 @@ jobs:
           cmake --build .
           echo "COUCOU"
           Get-ChildItem -Path ./ReferenceGame.dir
-          Compress-Archive -LiteralPath ./ReferenceGame.dir/Debug -DestinationPath zip/ReferenceGame.zip
+          Compress-Archive -LiteralPath ./ReferenceGame.dir/Debug -DestinationPath zip/ReferenceGame.zip Verbose Debug
 
       - name: Create Release
         id: create_release
