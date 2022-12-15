@@ -17,10 +17,10 @@ jobs:
 
       - name: Build .obj and zip
         run: |
-          cmake --build . --config Release
+          cmake --build .
           echo "COUCOU"
           Get-ChildItem -Path ./ReferenceGame.dir
-          Compress-Archive -LiteralPath ReferenceGame.dir -DestinationPath zip/ReferenceGame.zip
+          Compress-Archive -LiteralPath ./ReferenceGame.dir/Debug -DestinationPath zip/ReferenceGame.zip
 
       - name: Create Release
         id: create_release
