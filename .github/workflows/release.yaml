@@ -9,19 +9,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Compile .o files
-        run: |
-          # Do some mingcc magic here to create correct .o files
-          # Probably easiest to copy/paste from working CLion
-          # Then create a tgz or zip, whichever is easier
+      - name: Create temporary folder
+        run: mkdir zip
 
-# This probably doesn't work
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Configure CMake
+        run: cmake ${{github.workspace}}
+
+      - name: Build .obj and zip
+        run: |
+          cmake --build . --config Release
+          Compress-Archive -LiteralPath lab06-lastrobotstanding-reference.dir -DestinationPath zip/lab06-lastrobotstanding-reference.zip
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: objects.tgz
-          asset_name: objects
-          tag: ${{ github.ref }}
-          overwrite: true
-          body: "This is my release text"
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.tag }}
+          draft: false
+          prerelease: false
+
+      - name: Upload zip as release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_name: ./zip/lab06-lastrobotstanding-reference.zip # path + filename
+          asset_path: ./zip/lab06-lastrobotstanding-reference.zip
+          asset_content_type: application/zip

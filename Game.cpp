@@ -163,13 +163,13 @@ void Game::display_debug() {
 
 void Game::display() {
     vector<vector<Display::DString>> grid(side, vector<Display::DString>(side));
-    for (char robotNbr = '0'; const auto &robot: robots) {
+    for (int robotNbr = 0; const auto &robot: robots) {
         robotNbr++;
         if (robot.isDead()) {
             continue;
         }
         auto pos = robot.getPosition();
-        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << string(&robotNbr);
+        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << robotNbr;
     }
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
@@ -206,7 +206,7 @@ RobotState *Game::play() {
         checkBonus();
         display();
         sendUpdates();
-        this_thread::sleep_for(100ms / log(round + 2));
+        this_thread::sleep_for(1000ms / log(round + 2));
     } while (robotsAlive() > 1 && idle < IDLE_LIMIT);
 
     if (robotsAlive() == 1) {

@@ -1,4 +1,4 @@
-#include "MyRobot1.cpp"
+//#include "MyRobot1.cpp"
 #include "MonRobot.cpp"
 #include "RobotFB.cpp"
 #include "RobotFB_diag.cpp"
@@ -10,7 +10,7 @@
 vector<Robot*> students(){
   vector<Robot*> robots;
 
-  robots.push_back(new MyRobot1());
+//  robots.push_back(new MyRobot1());
   robots.push_back(new MonRobot());
   robots.push_back(new RobotFB());
   robots.push_back(new RobotFB_diag());
