@@ -18,78 +18,88 @@ using namespace chrono;
 string RobotTeamR::action(vector<string> updates) {
 
 
-    string responseAction = "wait";
+    //string responseAction = "move 1,1";
+    string responseAction = "move 1,1";
     vector<string> paramsDamage;
     Direction opposite;
     vector<Direction> robotsAutour;
-    vector<double> robotMag;
     Direction moveDir(1, 1);
     for (const auto &info: updates) {
-
         Message mess(info);
 
-
+        robotsAutour.clear();
         switch (mess.msg) {
             case MessageType::UpdateBoard:
-                cout << "updateBoard" << endl;
+//                cout << "updateBoard" << endl;
 
 
                 robotsAutour.insert(robotsAutour.begin(), mess.robots.begin(), mess.robots.end());
 
+
                 break;
             case MessageType::UpdateDamage:
-                cout << "updateDamage" << endl;
+//                cout << "updateDamage" << endl;
+
                 energy -= mess.energy;
+//                cout << "energy : " << energy << endl;
                 if (energy < 5) {
                     opposite = mess.robots.at(0).neg();
                     responseAction = Message::actionMove(opposite);
                 } else {
                     responseAction = Message::actionAttack(mess.robots.at(0));
                 }
-
                 break;
                 //que pour le bonus:
             case MessageType::UpdateEnergy:
-                cout << "updatEnergy" << endl;
+//                cout << "updateEnergy" << endl;
                 break;
             case MessageType::UpdatePower:
-                cout << "UpdatePower" << endl;
+//                cout << "UpdatePower" << endl;
                 break;
             case MessageType::UpdateBonus:
-                cout << "UpdateBonus" << endl;
+//                cout << "UpdateBonus" << endl;
                 break;
             case MessageType::UpdateRobot:
-                cout << "updateRobot" << endl;
+//                cout << "updateRobot" << endl;
+                break;
+            default:
                 break;
 
         }
 
     }
+    if (!robotsAutour.empty()) {
+//        for(auto &r : robotsAutour){
+//            cout << "Robot autour: " << r << endl;
+//        }
+        Direction closeRobot = *min_element(robotsAutour.begin(), robotsAutour.end(), [](Direction a, Direction b) {
+            return a.mag() < b.mag();
+        });
 
-    for (auto robot: robotsAutour) {
-        cout << "Robot : " << robot << endl;
-        cout << endl;
-        robotMag.push_back(robot.mag());
-        if ((energy > 5) and (robot.mag() < 3)) {
 
+        for (auto robot: robotsAutour) {
+//            cout << "Robot : " << robot << endl;
+//            cout << endl;
+
+
+            if ((energy > 5) and (robot.mag() < 3.0)) {
+//                cout << "I'm attacking : " << closeRobot << endl;
+                responseAction = Message::actionAttack(closeRobot);
+
+
+            } else {
+//                cout << "close " << closeRobot << endl;
+                //  cout << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
+                responseAction = Message::actionMove(closeRobot.unitary().neg());
+                // cout << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
+//                cout << "Response " << responseAction << endl;
+            }
         }
 
     }
-    for (auto mag: robotMag) {
-        cout << "mag : " << mag << endl;
-    }
-
-    sort(robotMag.begin(), robotMag.end());
-
-    for (auto mag: robotMag) {
-        cout << "mag sorted : " << mag << endl;
-    }
-    if(robotMag.at(0) == 1 ){
-        responseAction = Message::actionAttack(robotsAutour.at(0));
-    }
 
 
-return responseAction;
+    return responseAction;
 
 
 }
@@ -108,12 +118,12 @@ void RobotTeamR::setConfig(size_t width, size_t height, unsigned int energy, uns
 }
 
 size_t RobotTeamR::getEnergy() const {
-    cout << "Energy du robot : ";
+//    cout << "Energy du robot : ";
     return energy;
 }
 
 size_t RobotTeamR::getPower() const {
-    cout << "Power du robot : ";
+//    cout << "Power du robot : ";
     return power;
 }
 

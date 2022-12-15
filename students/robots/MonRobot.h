@@ -40,9 +40,11 @@ private:
     int pow;
     int life;
 
-    std::string attack(int xMove, int yMove);
+    static std::vector<std::vector<char>> boardRobot;
+
+    static std::string attack(int xMove, int yMove);
     std::string move(int xMove, int yMove);
-    std::string enemyNear();
+    static std::vector<std::vector<int>> enemyNear(const std::vector<std::vector<char>>& board);
 
     std::string goForward();
     std::string goBackward();
@@ -53,9 +55,12 @@ private:
     std::string goBackLeft();
     std::string goBackRight();
 
-    static std::string fightFirstTarget(const std::vector<std::string>& updates);
+    static std::string fightFirstTarget(const std::vector<std::vector<int>>& enemyCoordinates);
 
     static std::vector<std::vector<char>> boardStringToVectors(const std:: string&);
+
+    std::string fleeRobot(const std::vector<std::vector<int>>& enemyCoordinates);
+
 
 };
 

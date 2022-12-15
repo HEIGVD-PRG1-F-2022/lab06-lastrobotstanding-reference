@@ -6,8 +6,7 @@ Date creation   : 29.11.2022
 
 Description     :
 
-Remarque(s)     :TODO: optimiser stratégie 2 (cas ajout bonus)
-                 TODO: ne pas devenir fou (impossible)
+Remarque(s)     :TODO: ne pas devenir fou (impossible)
 
 Compilateur     : Mingw-w64 g++ 11.2.0
 -----------------------------------------------------------------------------------
@@ -25,7 +24,7 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 
         //permet de récupérer la string jusqu'à l'espace (donc l'action à effectuer)
         std::string effet = lignes.substr(0, lignes.find_first_of(' '));
-        lignes = lignes.substr(lignes.find_first_of(' '));
+        lignes = lignes.substr(lignes.find_first_of(' ')+1);
 
         //ici différent if en fonction de l'action à effectuer (board pour maj du tableau ou damage)
         if (effet == "board") {
@@ -35,51 +34,28 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
             alentour.resize(5, std::vector<std::string>(5));
 
             //parcours-les 5x5 cases entourant le robot
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i <= 4; i++) {//i et j allant de 0 à 4 au lieu de -2 à 2 à cause de la matrice alentour
                 for (int j = 0; j <= 4; j++) {
-                    if (i != 2 && j != 2) {//pour toutes les cases sauf celle où se situe notre robot
+                    if (i != 2 || j != 2) {//pour toutes les cases sauf celle où se situe notre robot
 
-                        //place les éléments de la chaine dans la "Vision" du robot
+                        //place les éléments de la chaine dans la "Vision" du robot (les 5x5 case autour de lui)
                         alentour.at(i).at(j) = lignes.at(entite);
 
                         //retiens la position du 1er robot repérer, utiliser pour stratégie d'attaque
-                        if (lignes.at(entite) == 'R' && flagR == 0) {
+                        if (lignes.at(entite) == 'R' && !flagR) {
                             flagR = 1;
-                            posRX = i;
-                            posRY = j;
-                            if ((i == 0 || i == 4) && (j == 0 || j == 4)) {
-                                distR = 2; //robot ennemi distant
-                            } else {
-                                distR = 1; //robot ennemi proche
-                            }
+                            posRX = i - 2;
+                            posRY = j - 2;
                         }
-                        entite++;
-                    } else {
+
+                    } else {//position de notre robot
                         alentour.at(i).at(j) = 'X';
                     }
+                    entite++;//passe à l'élément suivant de la ligne d'updates
                 }
-
             }
+        } else if (effet == "damage") {//permet de faire une stratégie de contre-attaque
 
-
-        } else if (effet == "damage") {
-
-            //prend la première valeur, pour la coordoner X du robot nous attanquant
-            std::string dX = lignes.substr(0, lignes.find_first_of(','));
-            //converti en int
-            int coordX = stoi(dX);
-            //efface les données assimiler
-            lignes = lignes.substr(lignes.find_first_of(',') + 1);
-
-            //même chose que avant mais pour la coordonée Y
-            std::string dY = lignes.substr(0, lignes.find_first_of(','));
-            int coordY = stoi(dY);
-            lignes = lignes.substr(lignes.find_first_of(',') + 1);
-
-
-            //prend la dernière valeur restante, sensé être les dommages reçus
-            std::string dam = lignes;
-            int damage = stoi(dam);
         }
     }
 
@@ -89,44 +65,13 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 std::string realisationAction(const int &flagR, int &distR, const int &posRX, const int &posRY, const size_t &energy) {
     int dX = 0, dY = 0;
 
-    //strategie 1: violence (scan tout les cases alentours, si trouve un R va lui péter la gueule)
-    if (flagR && energy > 3) { //s'il lui reste assez d'energy pour combatre
-        //le robot ennemi est dans notre périmètre direct
-        if (distR == 1) {
-            //si le robot est à droite, avance vers la droite. Sinon si le robot est à gauche, va vers la gauche. Sinon
-            //robot sur même axe X que nous, ne se déplace pas en X
-            if (posRX > 2) {
-                dX = 1;
-            } else if (posRX < 2) {
-                dX = -1;
-            }
+    //strategie 1, la violence : s'il y a un robot à porter, on va lui péter la gueule
+    if (flagR) {
 
-            //si le robot est devant, avance vers l'avant. Sinon si le robot est derrière, va vers l'arrière. Sinon
-            //robot sur même axe Y que nous, ne se déplace pas en Y
-            if (posRY > 2) {
-                dY = 1;
-            } else if (posRY < 2) {
-                dY = -1;
-            }
-        }
-            //même chose que précédement mais le robot ennemi est dans notre rayon d'attaque à distance
-        else if (distR == 2) {
-            if (posRX > 2) {
-                dX = 2;
-            } else if (posRX < 2) {
-                dX = -2;
-            }
-            if (posRY > 2) {
-                dY = 2;
-            } else if (posRY < 2) {
-                dY = -2;
-            }
-        }
-
-        std::string retour = "attack " + std::to_string(dX) + "," + std::to_string(dY);
+        std::string retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
         return retour;
     }
-        //strategie 2: patience (Aucune possibilitée d'attaque car aucun robot autour)
+        //strategie 2, patience: Aucune possibilitée d'attaque car aucun robot autour
     else {
         return "wait";
     }
@@ -136,7 +81,7 @@ std::string RobotFB::action(std::vector<std::string> updates) {
     int flagR = 0, distR = 0;
     int posRX = 0, posRY = 0;
 
-    //traite les action reçu dans l'update
+    //traite les actions reçu dans l'update
     traitementAction(updates, posRX, posRY, flagR, distR, alentour, energy);
 
     //"décide" de l'action à effectuer

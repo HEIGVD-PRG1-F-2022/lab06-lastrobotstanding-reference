@@ -13,28 +13,46 @@ Remarque(s)     : <a completer>
 
 #include "MonRobot.h"
 #include "librobots/Message.h"
-#include <iostream>
 
 using namespace std;
 
 MonRobot::MonRobot() {
-    str_name = "RoboTest";
+    str_name = "HeHehE";
 }
 
 void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
-               unsigned power_init) {
-dx = width_init;
-dy = height_init;
-life = (int)energy_init;
-pow = (int)power_init;
+                         unsigned power_init) {
+    dx = width_init;
+    dy = height_init;
+    life = (int) energy_init;
+    pow = (int) power_init;
 };
 
 string MonRobot::action(vector<string> updates) {
-    //return fightFirstTarget(updates);
-    return attack(1,0);
+    //Transforme la vision du robot en vector<vector<char>>
+    vector<vector<char>> board;
+    for (auto &s: updates) {
+        board = boardStringToVectors(s);
+        if (!board.empty()) {
+            break;
+        }
+    }
+
+    vector<vector<int>> enemyCoordinates = enemyNear(board);
+    if (!enemyCoordinates.empty()) {
+        if (life < 5) {
+            return fleeRobot(enemyCoordinates);
+        } else {
+            return fightFirstTarget(enemyCoordinates);
+        }
+    } else {
+        return goBackRight();
+    }
+
+    return "wait"; //fightFirstTarget(board);
 }
 
-string MonRobot::name() const{
+string MonRobot::name() const {
     return str_name;
 }
 
@@ -58,49 +76,59 @@ string MonRobot::move(int xMove, int yMove) {
 string MonRobot::goForward() {
     return move(0, 1);
 }
+
 string MonRobot::goBackward() {
     return move(0, -1);
 }
+
 string MonRobot::goLeft() {
     return move(-1, 0);
 }
+
 string MonRobot::goRight() {
     return move(1, 0);
 }
+
 string MonRobot::goUpLeft() {
     return move(-1, 1);
 }
+
 string MonRobot::goUpRight() {
     return move(1, 1);
 }
+
 string MonRobot::goBackLeft() {
     return move(-1, -1);
 }
+
 string MonRobot::goBackRight() {
     return move(1, -1);
 }
 
-string MonRobot::fightFirstTarget(const vector<string>& updates) {
-    vector<Message> msg;
-    for(auto s : updates){
-        auto board = boardStringToVectors(s);
+string MonRobot::fightFirstTarget(const vector<vector<int>> &enemyCoordinates) {
+    return attack(enemyCoordinates.front().front(), enemyCoordinates.front().back());
+}
+
+
+vector<vector<int>> MonRobot::enemyNear(const vector<vector<char>> &board) {
+    //S'il y a un ennemi aux alentours du robot
+    vector<vector<int>> enemiesCoordinates;
+    for (size_t y = 0; y < 5; y++) {
+        for (size_t x = 0; x < 5; x++) {
+            if (board.at(y).at(x) == 'R') {
+                enemiesCoordinates.emplace_back(vector<int>{(int) (y - 2), (int) (x - 2)});
+            }
+        }
     }
-
-    return "wait";
+    return enemiesCoordinates;
 }
 
-
-string MonRobot::enemyNear() {
-
-
-}
-
-vector<vector<char>> MonRobot::boardStringToVectors(const string& str) {
-    if(Message(str).msg == MessageType::UpdateBoard){
-        string strBoard = split(str,"d").back();
+vector<vector<char>> MonRobot::boardStringToVectors(const string &str) {
+    if (Message(str).msg == MessageType::UpdateBoard) {
+        string strBoard = split(str, "d").back();
         vector<vector<char>> board;
-        for(unsigned i = 0; i < 25; i++){
-            if(i%5 == 0){
+        for (unsigned i = 0; i < 25; i++) {
+            if (i % 5 == 0) {
                 board.emplace_back();
             }
             char c = strBoard[i];
@@ -112,4 +140,24 @@ vector<vector<char>> MonRobot::boardStringToVectors(const string& str) {
     return {};
 }
 
+
+string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates) {
+
+    vector<int> coordNearestRobot;
+    int coordResult = 5; //need a number higher than 2 + 2
+
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            if (enemyCoordinates.at(x).at(y) != 0)
+                if (abs(x) + abs(y) < coordResult) {
+                    coordResult = abs(x) + abs(y);
+                    coordNearestRobot = {x - 2, y - 2};       //relatives coordinates
+                }
+        }
+    }
+
+
+    return move(coordNearestRobot.at(0), coordNearestRobot.at(1));
+
+}
 

@@ -9,10 +9,7 @@ using namespace std;
 void game() {
     Game G;
     G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotDiagonal());
-//    G.addRobot(new RobotSmart());
-//    G.addRobot(new RobotSmart());
+    G.addRobot(new RobotSmart());
     G.addRobot(new RobotWait());
     for (const auto &robot: students()) {
         G.addRobot(robot);
@@ -29,9 +26,5 @@ void game() {
 
 int main() {
     game();
-  Display::init();
-  Display::DString("hello").print();
-  string in;
-  cin >> in;
-return 0;
+    return 0;
 }

@@ -40,6 +40,13 @@ public:
         return power;
     }
 
+    void setEnergy(double nrj) {
+        energy = nrj;
+    }
+    void setPower(double pow) {
+        power = pow;
+    }
+
     // Créer un nouveau robot et indique la taille du terrain de jeu ainsi que
     // l’énergie initiale du robot et la puissance de la frappe.
 
