@@ -1,6 +1,6 @@
 name: Releasing Objects
 
-on:
+on: [push]
 
 jobs:
   compile:

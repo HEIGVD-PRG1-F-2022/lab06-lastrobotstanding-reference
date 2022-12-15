@@ -169,9 +169,6 @@ void Game::display() {
             continue;
         }
         auto pos = robot.getPosition();
-<<<<<<< HEAD
-        grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = Display::DString(Display::Color::GREEN) << robotNbr;
-=======
         Display::DString robotStr;
         switch (robot.getAction().msg) {
             case MessageType::ActionMove:
@@ -190,7 +187,6 @@ void Game::display() {
                 break;
         }
         grid.at(size_t(pos.getY())).at(size_t(pos.getX())) = robotStr << robotNbr;
->>>>>>> 142a8f529f5226c43ec26537db7d7c4a56c43d4b
     }
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
