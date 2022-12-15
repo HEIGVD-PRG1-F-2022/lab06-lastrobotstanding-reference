@@ -29,6 +29,9 @@ else ()
     FetchContent_MakeAvailable(libdio)
 endif ()
 
-add_executable(ReferenceGame main.cpp Game.cpp robot/RobotSmart.cpp robot/RobotsSimple.cpp)
+add_library(Reference STATIC Game.cpp robot/RobotSmart.cpp robot/RobotsSimple.cpp)
 
-target_link_libraries(ReferenceGame PRIVATE librobots libdio)
+add_executable(ReferenceGame main.cpp)
+
+target_link_libraries(Reference PRIVATE librobots libdio)
+target_link_libraries(ReferenceGame PRIVATE librobots libdio Reference)

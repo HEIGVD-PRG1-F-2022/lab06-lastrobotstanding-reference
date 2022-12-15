@@ -19,8 +19,7 @@ jobs:
         run: |
           cmake --build .
           echo "COUCOU"
-          Get-ChildItem -Path ./ReferenceGame.dir
-          Compress-Archive -LiteralPath ./ReferenceGame.dir/Debug -DestinationPath zip/ReferenceGame.zip
+          Get-ChildItem -Path .
 
       - name: Create Release
         id: create_release
