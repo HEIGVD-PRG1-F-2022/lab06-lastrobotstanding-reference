@@ -3,22 +3,22 @@
 //#include "MapInfo.cpp"
 //#include "MeinRobot.cpp"
 //#include "Point.cpp"
+#include "BorisGuillaumator.cpp"
+#include "MonRobot.cpp"
+//#include "MonRobotGPKD.cpp"
+#include "RandomRoboto.cpp"
+#include "RobotFB.cpp"
+#include "RobotFB_diag.cpp"
+#include "RobotTeamR.cpp"
+#include "Roboto.cpp"
+#include "SoftIntersRobot.cpp"
 #include "action.cpp"
 #include "point.cpp"
 #include "sonny_robot.cpp"
-#include "MonRobot.cpp"
-#include "RobotFB.cpp"
-#include "RobotFB_diag.cpp"
-#include "BorisGuillaumator.cpp"
-#include "MonRobotGPKD.cpp"
-#include "RobotTeamR.cpp"
-#include "RandomRoboto.cpp"
-#include "Roboto.cpp"
-#include "SoftIntersRobot.cpp"
 #include <librobots/Robot.h>
 
-vector<Robot*> students(){
-  vector<Robot*> robots;
+vector<Robot *> students() {
+    vector<Robot *> robots;
 
   robots.push_back(new MyRobot1());
 //  robots.push_back(new MeinRobot());
@@ -34,4 +34,3 @@ vector<Robot*> students(){
   robots.push_back(new SoftIntersRobot());
   return robots;
 }
-
