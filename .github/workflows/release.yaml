@@ -9,11 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create temporary folder
-        run: mkdir zip
+      - name: Choco install MinGW
+        uses: crazy-max/ghaction-chocolatey@v2
+        with:
+          args: install mingw --version 9.4.0 --force
 
       - name: Configure CMake
-        run: cmake ${{github.workspace}}
+        run: cmake -G "MinGW Makefiles" ${{github.workspace}}
 
       - name: Build .obj and zip
         run: |
@@ -21,28 +23,13 @@ jobs:
           echo "COUCOU"
           Get-ChildItem -Path .
           Get-ChildItem -Path CMakeFiles
-          Get-ChildItem -Path Reference.dir
-          Get-ChildItem -Path Debug
-          Get-ChildItem -Path x64
-          Get-ChildItem -Path _deps
 
-#      - name: Create Release
-#        id: create_release
-#        uses: actions/create-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: ${{ github.ref }}
-#          release_name: Release ${{ github.tag }}
-#          draft: false
-#          prerelease: false
-#
       - name: Upload Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./Debug/Reference.Lib
-          asset_name: Reference.lib
+          file: ./libReference.a
+          asset_name: libReference.a
           tag: latest
           overwrite: true
           body: "Latest Reference.lib for reference-obj"

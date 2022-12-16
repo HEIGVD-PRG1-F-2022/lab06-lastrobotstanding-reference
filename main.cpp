@@ -3,6 +3,7 @@
 #include "robot/RobotsSimple.h"
 #include <iostream>
 #include <map>
+#include <cstring>
 
 using namespace std;
 
