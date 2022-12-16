@@ -26,23 +26,23 @@ jobs:
           Get-ChildItem -Path x64
           Get-ChildItem -Path _deps
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: Release ${{ github.tag }}
+#          draft: false
+#          prerelease: false
+#
+      - name: Upload Release
+        uses: svenstaro/upload-release-action@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.tag }}
-          draft: false
-          prerelease: false
-
-      - name: Upload zip as release asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./Debug/Reference.Lib
-          asset_content_type: application/zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./Debug/Reference.Lib
+          asset_name: Reference.lib
+          tag: latest
+          overwrite: true
+          body: "Latest Reference.lib for reference-obj"

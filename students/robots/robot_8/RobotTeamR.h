@@ -21,7 +21,7 @@ public:
 
     /*RobotTeamR(size_t width, size_t height, unsigned energy, unsigned power) : width(0), height(0), energy(energy),
                                                                                power(power) {
-        std::cout << "Un robot " << name() << " with energy : " << this->energy << " and power : " << this->power
+// << "Un robot " << name() << " with energy : " << this->energy << " and power : " << this->power
                   << std::endl;
 
     };*/

@@ -30,18 +30,27 @@ add_robots() {
   mkdir -p $ROBOTS_DIR
   rm -f $ROBOTS_DIR/*{h,cpp}
   NAMES=""
+  ROBOT_NBR=1
   for robot in $(cat $ROBOTS_SUCCESS); do
+    ROBOT_TEAM="robot_$ROBOT_NBR"
     for NAME in $(grep -h "class.*\: *public Robot" $robot/*.h | sed -e "s/class \(.*\):.*/\1/"); do
       echo "Got a good robot in $robot with name $NAME"
       NAMES="$NAMES $NAME"
+#      NAMES="$NAMES $ROBOT_TEAM::$NAME"
     done
-    cp $robot/*.h $robot/*.cpp $ROBOTS_DIR
+    ROBOT_DIR="$ROBOTS_DIR/$ROBOT_TEAM"
+    mkdir -p $ROBOT_DIR
+    cp $robot/*.h $robot/*.cpp $ROBOT_DIR
+#    echo "namespace $ROBOT_TEAM {" >> $ROBOTS_ALL
     for f in $robot/*.cpp; do
-      echo "#include \"$(basename $f)\"" >>$ROBOTS_ALL
+      echo "#include \"$ROBOT_TEAM/$(basename $f)\"" >>$ROBOTS_ALL
     done
+#    echo "}" >> $ROBOTS_ALL
+    ROBOT_NBR=$(( ROBOT_NBR + 1 ))
   done
 
-  echo -e "#include <librobots/Robot.h>\n\nvector<Robot*> students(){\n  vector<Robot*> robots;\n" >> $ROBOTS_ALL
+  echo -e "#include <librobots/Robot.h>\n#include <vector>
+  \nstd::vector<Robot*> students(){\n  std::vector<Robot*> robots;\n" >> $ROBOTS_ALL
   for name in $NAMES; do
     echo -e "  robots.push_back(new $name());" >>$ROBOTS_ALL
   done

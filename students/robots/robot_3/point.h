@@ -17,24 +17,24 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 #include <string>
 
-class Point {
-    friend Point operator+(Point &lhs, const Point &rhs);
+class Point3 {
+    friend Point3 operator+(Point3 &lhs, const Point3 &rhs);
 public:
     int x, y;
 
-    Point();
+    Point3();
 
-    Point(int x, int y) : x(x), y(y) {}
+    Point3(int x, int y) : x(x), y(y) {}
 
     explicit operator std::string() const;
 
-    static Point fromStrToPoint(const std::string& coords, const std::string& sep = ",");
+    static Point3 fromStrToPoint3(const std::string& coords, const std::string& sep = ",");
 
-    bool operator == (Point coords) const;
+    bool operator == (Point3 coords) const;
 
-    Point& operator += (const Point& rhs);
+    Point3& operator += (const Point3& rhs);
 
-    static Point& wrap(Point &coords, int min, int max);
+    static Point3& wrap(Point3 &coords, int min, int max);
 };
 
 #endif //ROBOT_POINT_H

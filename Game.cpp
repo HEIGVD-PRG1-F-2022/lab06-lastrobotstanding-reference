@@ -193,7 +193,7 @@ void Game::display() {
     }
     Display::DString().cursorHome().print();
     Display::displayGrid(grid, false).print();
-    cout << (Display::DString("Round: ") << round++ << " Idle for: " << idle++).cursorDelete(Display::DString::LineDelete::TO_END) << endl;
+    cout << (Display::DString("Round: ") << round << " Idle for: " << idle).cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     for (int i = 1; const auto &robot: robots) {
         if (robot.isDead()) {
             cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause());
@@ -212,9 +212,11 @@ void Game::addRobot(Robot *r) {
     waitList.push_back(r);
 }
 
-RobotState *Game::play() {
-    Display::init();
-    Display::clearScreen();
+RobotState *Game::play(bool show) {
+    if (show) {
+        Display::init();
+        Display::clearScreen();
+    }
     waitListToArena();
     do {
         actionAttack();
@@ -222,10 +224,12 @@ RobotState *Game::play() {
         actionRadar();
         createBonus();
         checkBonus();
-        display();
+        if (show) {
+            display();
+            this_thread::sleep_for(1000ms / log(round + 2));
+        }
         sendUpdates();
-        this_thread::sleep_for(1000ms / log(round + 2));
-    } while (robotsAlive() > 1 && idle < IDLE_LIMIT);
+    } while (robotsAlive() > 1 && ++idle < IDLE_LIMIT && ++round < 10000);
 
     if (robotsAlive() == 1) {
         return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });

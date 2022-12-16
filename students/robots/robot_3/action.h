@@ -37,7 +37,7 @@ public:
 
     static Name resolveAction(std::string &action);
 
-    static std::string generateDamage(Point coords, unsigned int energy);
+    static std::string generateDamage(Point3 coords, unsigned int energy);
 };
 
 #endif //ROBOT_ACTION_H

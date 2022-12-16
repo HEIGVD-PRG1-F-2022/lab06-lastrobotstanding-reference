@@ -35,7 +35,7 @@ string RobotTeamR::action(vector<string> updates) {
         robotsAutour.clear();
         switch (mess.msg) {
             case MessageType::UpdateBoard:
-                cout << "updateBoard" << endl;
+// << "updateBoard" << endl;
 
 
                 robotsAutour.insert(robotsAutour.begin(), mess.robots.begin(), mess.robots.end());
@@ -44,30 +44,30 @@ string RobotTeamR::action(vector<string> updates) {
 
                 break;
             case MessageType::UpdateDamage:
-                cout << "updateDamage" << endl;
+// << "updateDamage" << endl;
 
                 damegeReceived.insert(damegeReceived.begin(), mess.robots.begin(), mess.robots.end());
 
                 energy -= mess.energy;
-                cout << "energy : " << energy << endl;
+// << "energy : " << energy << endl;
 
 
 
                 break;
                 //que pour le bonus:
             case MessageType::UpdateEnergy:
-                cout << "updateEnergy" << endl;
+// << "updateEnergy" << endl;
                 energy += mess.energy;
                 break;
             case MessageType::UpdatePower:
-                cout << "UpdatePower" << endl;
+// << "UpdatePower" << endl;
                 power += mess.power;
                 break;
             case MessageType::UpdateBonus:
-                cout << "UpdateBonus" << endl;
+// << "UpdateBonus" << endl;
                 break;
             case MessageType::UpdateRobot:
-                cout << "updateRobot" << endl;
+// << "updateRobot" << endl;
                 break;
             default:
                 break;
@@ -86,7 +86,7 @@ string RobotTeamR::action(vector<string> updates) {
         Direction closeBonus = *min_element(bonusAround.begin(), bonusAround.end(), [](Direction a, Direction b) {
             return a.mag() < b.mag();
         });
-        cout << "There's a bonus!! en position :" << closeBonus << endl;
+// << "There's a bonus!! en position :" << closeBonus << endl;
         responseAction = Message::actionMove(closeBonus.unitary());
     }
 
@@ -96,7 +96,7 @@ string RobotTeamR::action(vector<string> updates) {
         });
 
         for(auto &d : damegeReceived){
-            cout << "Damage received autour: " << d << endl;
+// << "Damage received autour: " << d << endl;
         }
 
       /*  if (energy < 5) {
@@ -110,7 +110,7 @@ string RobotTeamR::action(vector<string> updates) {
 
     if (!robotsAutour.empty()) {
         for(auto &r : robotsAutour){
-            cout << "Robot autour: " << r << endl;
+// << "Robot autour: " << r << endl;
         }
         Direction closeRobot = *min_element(robotsAutour.begin(), robotsAutour.end(), [](Direction a, Direction b) {
             return a.mag() < b.mag();
@@ -118,21 +118,21 @@ string RobotTeamR::action(vector<string> updates) {
 
 
         for (auto robot: robotsAutour) {
-            cout << "Robot : " << robot << endl;
-            cout << endl;
+// << "Robot : " << robot << endl;
+// << endl;
 
 
             if ((energy > 5) and (robot.mag() < 3.0)) {
-                cout << "I'm attacking : " << closeRobot << endl;
+// << "I'm attacking : " << closeRobot << endl;
                 responseAction = Message::actionAttack(closeRobot);
 
 
             } else {
-                cout << "close " << closeRobot << endl;
-                //  cout << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
+// << "close " << closeRobot << endl;
+// << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
                 responseAction = Message::actionMove(closeRobot.unitary().neg());
-                // cout << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
-                cout << "Response " << responseAction << endl;
+// << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
+// << "Response " << responseAction << endl;
             }
         }
 
@@ -166,12 +166,12 @@ void RobotTeamR::setConfig(size_t width, size_t height, unsigned int energy, uns
 }
 
 size_t RobotTeamR::getEnergy() const {
-    cout << "Energy du robot : ";
+// << "Energy du robot : ";
     return energy;
 }
 
 size_t RobotTeamR::getPower() const {
-    cout << "Power du robot : ";
+// << "Power du robot : ";
     return power;
 }
 

@@ -25,8 +25,8 @@ void MyRobot1::setConfig(size_t width_init, size_t height_init, unsigned energy_
 string MyRobot1::action(vector<string> updates){
     for (const auto &update: updates) {
         vector<string> params = split(update, " ", 2);
-        cout << "Command: " << params.at(0) << endl;
-        cout << "Parameters: " << params.at(1) << endl;
+// << "Command: " << params.at(0) << endl;
+// << "Parameters: " << params.at(1) << endl;
 
         Message msg(update);
         switch (msg.msg) {

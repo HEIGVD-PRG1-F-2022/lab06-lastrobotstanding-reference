@@ -36,22 +36,22 @@ string SonnyRobot::action(vector<string> updates) {
 
         switch (Action::resolveAction(action)) {
             case Action::Name::BOARD:
-                cout << "BOARD" << endl;
+// << "BOARD" << endl;
                 break;
             case Action::Name::DAMAGE:
-                cout << "DAMAGE" << parameters << endl;
+// << "DAMAGE" << parameters << endl;
                 break;
             case Action::Name::MOVE:
-                cout << "MOVE" << endl;
+// << "MOVE" << endl;
                 break;
             case Action::Name::ATTACK:
-                cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
                 break;
             case Action::Name::WAIT:
-                cout << "WAIT" << endl;
+// << "WAIT" << endl;
                 break;
             case Action::Name::BONUS:
-                cout << "BONUS" << endl;
+// << "BONUS" << endl;
                 break;
             default:
                 break;
@@ -73,22 +73,22 @@ string SonnyRobot::action(vector<string> updates) {
 
     if(BONUS){
         if (!robot){
-            cout << "go to Bonus";
+// << "go to Bonus";
         } else{
             if (posBonus - posSonny < posBonus - posRobot){
-                cout << "go to Bonus";
+// << "go to Bonus";
             } else if(energy > 5 + nbrRound){
-                cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
             }else{
-                cout << "MOVE" << endl;
+// << "MOVE" << endl;
             }
         }
 
    if (robot){
        if(energy > 5 + nbrRound){
-           cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
        }else{
-           cout << "MOVE" << endl;
+// << "MOVE" << endl;
        }
    }
 

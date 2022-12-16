@@ -54,7 +54,7 @@ public:
 
     void addRobot(Robot *r);
 
-    RobotState *play();
+    RobotState *play(bool show = true);
 };
 
 
