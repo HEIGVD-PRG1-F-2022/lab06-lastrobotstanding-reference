@@ -1,4 +1,4 @@
-#include "robot_1/MyRobot1.cpp"
+//#include "robot_1/MyRobot1.cpp"
 #include "robot_2/BonusState.cpp"
 #include "robot_2/MapInfo.cpp"
 #include "robot_2/MeinRobot.cpp"
@@ -21,7 +21,7 @@
 std::vector<Robot*> students(){
   std::vector<Robot*> robots;
 
-  robots.push_back(new MyRobot1());
+//  robots.push_back(new MyRobot1());
   robots.push_back(new MeinRobot());
   robots.push_back(new SonnyRobot());
   robots.push_back(new MonRobot());
@@ -29,7 +29,7 @@ std::vector<Robot*> students(){
   robots.push_back(new RobotFB_diag());
   robots.push_back(new BorisGuillaumator());
 //  robots.push_back(new MonRobotGPKD());
-//  robots.push_back(new RobotTeamR());
+  robots.push_back(new RobotTeamR());
   robots.push_back(new RandomRoboto());
   robots.push_back(new Roboto());
   robots.push_back(new SoftIntersRobot());

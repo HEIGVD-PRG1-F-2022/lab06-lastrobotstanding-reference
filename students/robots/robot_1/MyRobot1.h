@@ -26,7 +26,7 @@ public:
 
     void setConfig(size_t width_init, size_t height_init, unsigned int energy_init, unsigned int power_init) override;
 
-    std::string name() const;
+    [[nodiscard]] std::string name() const override;
 };
 
 

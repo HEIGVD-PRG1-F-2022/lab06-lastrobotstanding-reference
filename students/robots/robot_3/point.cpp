@@ -14,6 +14,7 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 #include "point.h"
 #include "librobots/Message.h"
+#include <cmath>
 #include <vector>
 #include <sstream>
 
@@ -45,13 +46,13 @@ bool Point3::operator==(Point3 coords) const {
     return this->x == coords.x && this->y == coords.y;
 }
 
-Point3 &Point3::operator+=(const Point3 &lhs) {
-    this->x += lhs.x;
-    this->y += lhs.y;
+Point3 &Point3::operator+=(const Point3 &rhs) {
+    this->x += rhs.x;
+    this->y += rhs.y;
     return *this;
 }
 
-Point3 operator+(Point3 &lhs, const Point3 &rhs) {
+Point3 operator+(Point3 lhs, const Point3 &rhs) {
     lhs += rhs;
     return lhs;
 }
@@ -71,6 +72,10 @@ Point3 &Point3::wrap(Point3 &coords, int min, int max) {
     coords.y = min + (valueY - min) % wrapSize;
 
     return coords;
+}
+
+int Point3::distance(Point3 coords) const{
+    return (int) sqrt(pow(this->x - coords.x, 2) + pow(this->y - coords.y, 2));
 }
 
 

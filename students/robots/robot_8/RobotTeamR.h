@@ -19,24 +19,13 @@ class RobotTeamR : public Robot {
 
 public:
 
-    /*RobotTeamR(size_t width, size_t height, unsigned energy, unsigned power) : width(0), height(0), energy(energy),
-                                                                               power(power) {
-// << "Un robot " << name() << " with energy : " << this->energy << " and power : " << this->power
-                  << std::endl;
-
-    };*/
 
     std::string action(std::vector<std::string> updates) override;
 
-    std::string name() const override;
+    [[nodiscard]] std::string name() const override;
 
     void setConfig(size_t width, size_t height, unsigned energy, unsigned power) override;
 
-    size_t getEnergy() const;
-
-    size_t getPower() const;
-
-    std::string randomAction();
 
 private:
 
@@ -44,7 +33,11 @@ private:
     size_t height;
     unsigned energy;
     unsigned power;
+    std::string randomMove();
+    int numRandom;
+    std::string lastMove;
 
+    std::string randomAction();
 };
 
 

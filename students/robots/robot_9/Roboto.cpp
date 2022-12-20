@@ -21,7 +21,7 @@ string Roboto::action(vector<string> updates) {
     //TODO: extract updates (board, damage, bonus) apply them and call chooseAction()
 
     //Dumb temporary behavior just for game development phase
-// << "action is move 1 -1";
+    // cout << "action is move 1 -1";
     // return Message::actionMove(Direction(1, 1));
     for (string update: updates) {
         Message message(update);

@@ -39,7 +39,7 @@ string SonnyRobot::action(vector<string> updates) {
 // << "BOARD" << endl;
                 break;
             case Action::Name::DAMAGE:
-// << "DAMAGE" << parameters << endl;
+                //cout << "DAMAGE" << parameters << endl;
                 break;
             case Action::Name::MOVE:
 // << "MOVE" << endl;
@@ -60,7 +60,7 @@ string SonnyRobot::action(vector<string> updates) {
     }
 
 
-    return "move -1,-1";
+    return "attack 0,-2";
 }
 
     /*

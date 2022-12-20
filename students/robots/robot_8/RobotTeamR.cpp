@@ -6,68 +6,66 @@
  */
 #include "RobotTeamR.h"
 #include "librobots/Message.h"
-#include  <chrono>
-#include <thread>
-#include <algorithm>
+#include <random>
 
 using namespace std;
-using namespace this_thread;
-using namespace chrono;
 
+std::ostream &operator<<(std::ostream &os, const std::vector<Direction> &positions) {
+    for (const auto &i: positions) {
+        os << i << ", ";
+    }
+    return os;
+}
 
 string RobotTeamR::action(vector<string> updates) {
 
 
+    //cout<< endl << "Début de robot" << endl;
+
     string responseAction = "move 1,1";
     vector<string> paramsDamage;
 
-    Direction opposite;
-    Direction moveDir(1, 1);
+    //Direction opposite;
+    // Direction moveDir(1, 1);
 
     vector<Direction> robotsAutour;
-    vector<Direction> damegeReceived;
+    vector<Direction> damageReceived;
     vector<Direction> bonusAround;
+    vector<Direction> robotAround;
+    vector<Direction> radarRobots;
+    vector<Direction> radarBonus;
 
 
     for (const auto &info: updates) {
         Message mess(info);
 
-        robotsAutour.clear();
+
         switch (mess.msg) {
             case MessageType::UpdateBoard:
-// << "updateBoard" << endl;
 
 
-                robotsAutour.insert(robotsAutour.begin(), mess.robots.begin(), mess.robots.end());
-                bonusAround.insert(bonusAround.begin(), mess.boni.begin(), mess.boni.end());
+                robotsAutour.insert(robotsAutour.end(), mess.robots.begin(), mess.robots.end());
+                bonusAround.insert(bonusAround.end(), mess.boni.begin(), mess.boni.end());
 
 
                 break;
             case MessageType::UpdateDamage:
-// << "updateDamage" << endl;
 
-                damegeReceived.insert(damegeReceived.begin(), mess.robots.begin(), mess.robots.end());
-
+                damageReceived.insert(damageReceived.end(), mess.robots.begin(), mess.robots.end());
                 energy -= mess.energy;
-// << "energy : " << energy << endl;
-
-
 
                 break;
-                //que pour le bonus:
             case MessageType::UpdateEnergy:
-// << "updateEnergy" << endl;
                 energy += mess.energy;
                 break;
             case MessageType::UpdatePower:
-// << "UpdatePower" << endl;
                 power += mess.power;
                 break;
             case MessageType::UpdateBonus:
-// << "UpdateBonus" << endl;
+                radarBonus.insert(radarBonus.end(), mess.boni.begin(), mess.boni.end());
                 break;
             case MessageType::UpdateRobot:
-// << "updateRobot" << endl;
+                radarRobots.insert(radarRobots.end(), mess.robots.begin(), mess.robots.end());
                 break;
             default:
                 break;
@@ -76,81 +74,90 @@ string RobotTeamR::action(vector<string> updates) {
 
     }
 
-    /*
+    /*Proposition stratégie
+     *
+     * TODO
+     * Priorité BON
      *
      *
      *
      */
 
-    if(!bonusAround.empty()){
-        Direction closeBonus = *min_element(bonusAround.begin(), bonusAround.end(), [](Direction a, Direction b) {
-            return a.mag() < b.mag();
-        });
-// << "There's a bonus!! en position :" << closeBonus << endl;
-        responseAction = Message::actionMove(closeBonus.unitary());
+    //if there were radar info, we use those instead of the board info
+    if (!radarRobots.empty()) {
+        robotsAutour = radarRobots;
+    }
+    if (!radarBonus.empty()) {
+        bonusAround = radarBonus;
     }
 
-    if(!damegeReceived.empty()){
-        Direction closeRobot = *min_element(robotsAutour.begin(), robotsAutour.end(), [](Direction a, Direction b) {
-            return a.mag() < b.mag();
-        });
+    //we sort the positions to have the closest on top
+    sort(robotsAutour.begin(), robotsAutour.end(), [](const Direction &a, const Direction &b) {
+        return a.mag() < b.mag();
+    });
+    sort(bonusAround.begin(), bonusAround.end(), [](const Direction &a, const Direction &b) {
+        return a.mag() < b.mag();
+    });
+    bool robotFound = !robotsAutour.empty();
+    bool bonusFound = !bonusAround.empty();
+    //bool radarInfo = !radarRobots.empty() || !radarBonus.empty();
 
-        for(auto &d : damegeReceived){
-// << "Damage received autour: " << d << endl;
-        }
+    //if there is a bonus to take, we go for it
+    if (bonusFound) {
 
-      /*  if (energy < 5) {
-            opposite = mess.robots.at(0).neg();
-            responseAction = Message::actionMove(opposite);
-        } else {
-            responseAction = Message::actionAttack(mess.robots.at(0));
-        }*/
-    }
+        for (auto bonus: bonusAround) {
+            bool tooRisky = false;
+            if (robotFound) {
+                for (const auto &i: robotsAutour) {
+                    //if there is another robot closer to the bonus than the robot or a robot on the case we want to go --> too risky
+                    if ((i - bonus).mag() <= bonus.mag()) {
+                        tooRisky = true;
+                        break;
+                    }
+                }
 
-
-    if (!robotsAutour.empty()) {
-        for(auto &r : robotsAutour){
-// << "Robot autour: " << r << endl;
-        }
-        Direction closeRobot = *min_element(robotsAutour.begin(), robotsAutour.end(), [](Direction a, Direction b) {
-            return a.mag() < b.mag();
-        });
-
-
-        for (auto robot: robotsAutour) {
-// << "Robot : " << robot << endl;
-// << endl;
-
-
-            if ((energy > 5) and (robot.mag() < 3.0)) {
-// << "I'm attacking : " << closeRobot << endl;
-                responseAction = Message::actionAttack(closeRobot);
-
-
-            } else {
-// << "close " << closeRobot << endl;
-// << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
-                responseAction = Message::actionMove(closeRobot.unitary().neg());
-// << "close robot with unitary and neg " << closeRobot.neg().unitary() << endl;
-// << "Response " << responseAction << endl;
+            }
+            if (!tooRisky) {
+                responseAction = Message::actionMove(bonus.unitary());
+                return responseAction;
             }
         }
+    }
+    //cout << "closestBonus : " << closestBonus << endl;
 
+    if (energy >= 12 and power >= 3 and robotFound) {
+        if (robotsAutour.front().mag() < 3) {
+            responseAction = Message::actionAttack(robotsAutour.front());
+            return responseAction;
+        }
+
+
+    } else {
+        if (robotFound) {
+            Direction escapeMove = robotsAutour.front().unitary();
+            escapeMove = escapeMove.neg();
+
+            if (find(robotsAutour.begin(), robotsAutour.end(), escapeMove) == robotsAutour.end()) {
+                return Message::actionMove(escapeMove);
+            } else if (find(robotsAutour.begin(), robotsAutour.end(), escapeMove.rotate(M_PI / 2)) ==
+                       robotsAutour.end()) {
+                return Message::actionMove(escapeMove);
+            } else if (find(robotsAutour.begin(), robotsAutour.end(), escapeMove.rotate(-M_PI)) == robotsAutour.end()) {
+                return Message::actionMove(escapeMove);
+            } else if (robotsAutour.front().mag() < 3) {
+
+                return Message::actionAttack(robotsAutour.front());
+            }
+
+
+        }
     }
 
-
-    return responseAction;
+    return randomAction();
 
 
 }
 
-
-void responseDamage(){
-
-}
-void responseRobot(){
-
-}
 
 string RobotTeamR::name() const {
     return "RobotTeamR";
@@ -165,13 +172,38 @@ void RobotTeamR::setConfig(size_t width, size_t height, unsigned int energy, uns
 
 }
 
-size_t RobotTeamR::getEnergy() const {
-// << "Energy du robot : ";
-    return energy;
+
+std::string RobotTeamR::randomMove() {
+    if (lastMove.empty() or numRandom > 3) {
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::uniform_int_distribution<int> dir(-1, 1);
+        lastMove = Message::actionMove(Direction(dir(mt), dir(mt)));
+        if (lastMove == Message::actionMove(Direction(0, 0))) {
+            numRandom = 4;
+            lastMove = Message::actionWait();
+        } else {
+            numRandom = 0;
+        }
+
+        return lastMove;
+    }
+    ++numRandom;
+    return lastMove;
+
+
 }
 
-size_t RobotTeamR::getPower() const {
-// << "Power du robot : ";
-    return power;
-}
+std::string RobotTeamR::randomAction() {
 
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> action(0, 5);
+    //choose random action 0 --> radar, else randomMove (to avoid making using too much actionRadar)
+    switch (action(mt)) {
+        case 0 :
+            return Message::actionRadar();
+        default:
+            return randomMove();
+    }
+}
