@@ -55,8 +55,8 @@ Game setupGame(cfg c) {
     bool addSmart = c.smart == YES;
     if (c.smart == RANDOM) {
         std::random_device rd;
-        std::uniform_int_distribution<bool> w(false, true);
-        addSmart = w(rd);
+        std::uniform_int_distribution<int> w(0, 1);
+        addSmart = w(rd) == 1;
     }
     if (addSmart) { G.addRobot(new RobotSmart()); }
     G.addRobot(new RobotWait());
