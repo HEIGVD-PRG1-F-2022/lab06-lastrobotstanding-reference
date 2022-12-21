@@ -17,7 +17,6 @@ class Point2D {
     long int x = 0;
     long int y = 0;
 
-    //friend Point2D operator=(Point2D& lhs, const Point2D& rhs);
     friend Point2D operator+(Point2D lhs, const Point2D &rhs);
     friend Point2D operator-(Point2D lhs, const Point2D &rhs);
     friend bool operator==(const Point2D &lhs, const Point2D &rhs);
@@ -38,6 +37,8 @@ public:
     long int getY() const;
 
     Point2D normalize() const;
+
+    std::string toString() const;
 };
 
 #endif//LASTROBOTSTANDING_POINT2D_H

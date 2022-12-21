@@ -74,7 +74,13 @@ void Game::actionRadar() {
         if (robot.isDead()) { continue; }
         Message act = robot.getAction();
         if (act.msg == MessageType::ActionRadar) {
-            robot.actionRadar(positions);
+            if (standard) {
+                robot.actionRadar(positions);
+            } else {
+                vector<Position> boniPos(boni.size());
+                transform(boni.begin(), boni.end(), boniPos.begin(), [](const Bonus &b) { return b.pos; });
+                robot.actionRadar(positions, boniPos);
+            }
             radar.push_back(robot.getPosition());
         }
     }
@@ -107,7 +113,7 @@ void Game::checkBonus() {
         if (robot.isDead()) { continue; }
         auto b = find_if(boni.begin(), boni.end(), [robot](Bonus b) -> bool { return b.pos == robot.getPosition(); });
         if (b != boni.end()) {
-            idle = 0;
+            if (!standard) { idle = 0; }
             switch (b->type) {
                 case BonusType::Energy:
                     robot.actionEnergy(b->value);
@@ -194,7 +200,7 @@ void Game::addRobot(Robot *r) {
 RobotState *Game::play(bool show) {
     if (show) {
         Display::init();
-        Display::clearScreen();
+        Display::DString().clearScreen().cursorVisible(false).print();
     }
     waitListToArena();
     do {
@@ -210,7 +216,8 @@ RobotState *Game::play(bool show) {
             this_thread::sleep_for(50ms / pow(log(round + 2), 2));
         }
         sendUpdates();
-    } while (robotsAlive() > 1 && ++idle < IDLE_LIMIT && ++round < MAX_ROUNDS);
+        if (standard) { idle_limit = unsigned(100 * robotsAlive()); }
+    } while (robotsAlive() > 1 && ++idle < idle_limit && ++round < MAX_ROUNDS);
 
     if (robotsAlive() == 1) {
         return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });

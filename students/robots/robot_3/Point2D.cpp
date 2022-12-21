@@ -60,3 +60,7 @@ Point2D Point2D::normalize() const {
     long int ynorm = y == 0 ? 0 : (1 / sqrt(y * y) * y);
     return Point2D(xnorm, ynorm);
 }
+
+std::string Point2D::toString() const {
+    return std::to_string(x).append(",").append(std::to_string(y));
+}

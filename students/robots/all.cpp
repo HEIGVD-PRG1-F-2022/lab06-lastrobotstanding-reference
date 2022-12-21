@@ -17,6 +17,7 @@
 #include "robot_11/RandomRoboto.cpp"
 #include "robot_11/Roboto.cpp"
 #include "robot_12/SoftIntersRobot.cpp"
+#include "robot_13/Pipou.cpp"
 #include <librobots/Robot.h>
 #include <vector>
   
@@ -37,6 +38,7 @@ std::vector<Robot*> students(){
   robots.push_back(new RandomRoboto());
   robots.push_back(new Roboto());
   robots.push_back(new SoftIntersRobot());
+  robots.push_back(new Pipou());
   return robots;
 }
 

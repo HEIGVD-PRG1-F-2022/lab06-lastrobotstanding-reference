@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
-#include <cmath>
 #include "RobotSmart.h"
 #include <algorithm>
+#include <cmath>
 #include <librobots/Direction.h>
 #include <librobots/Message.h>
 #include <librobots/Robot.h>
@@ -9,22 +9,16 @@
 using namespace std;
 
 void RobotSmart::updateNearest(Direction dir, bool bonus) {
-    double distanceNearest = nearestDirection.mag(),
-           distance = dir.mag();
-    if (distance <= 0.5) {
-        throw runtime_error("Nearest with distance 0");
-    }
-    if (distance + nearestCounter < distanceNearest ||
-        nearestCounter == 0 ||
-        bonus) {
+    double distanceNearest = nearestDirection.mag(), distance = dir.mag();
+    if (distance <= 0.5) { throw runtime_error("Nearest with distance 0"); }
+    if (distance + nearestCounter < distanceNearest || nearestCounter == 0 || bonus) {
         //            cout << "Updating distance with " << dir << endl;
         nearestDirection = dir;
         nearestCounter = bonus ? unsigned(width) : 10;
     }
 }
 
-void RobotSmart::setConfig(size_t init_width, size_t init_height, unsigned init_energy,
-                           unsigned init_power) {
+void RobotSmart::setConfig(size_t init_width, size_t init_height, unsigned init_energy, unsigned init_power) {
     width = init_width;
     height = init_height;
     energy = init_energy;
@@ -33,6 +27,7 @@ void RobotSmart::setConfig(size_t init_width, size_t init_height, unsigned init_
 
 std::string RobotSmart::action(std::vector<std::string> updates) {
     vector<Direction> robots, boni;
+    ++lastAttack;
     //        for (const auto &update: updates){
     //            cout << name() << " Update is: " << update << endl;
     //        }
@@ -62,24 +57,37 @@ std::string RobotSmart::action(std::vector<std::string> updates) {
         }
     }
 
-    if (!boni.empty()) {
-        sort(boni.begin(), boni.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
-        updateNearest(boni.at(0), true);
-    }
+    std::sort(robots.begin(), robots.end(), [](Direction a, Direction b) { return a.mag() < b.mag(); });
+    robots.erase(std::unique(robots.begin(), robots.end()), robots.end());
+    if (robots.size() > 0 && robots.front().mag() == 0) { robots.erase(robots.begin()); }
+    std::sort(boni.begin(), boni.end(), [](Direction a, Direction b) { return a.mag() < b.mag(); });
+    boni.erase(std::unique(boni.begin(), boni.end()), boni.end());
+
+    if (!boni.empty()) { updateNearest(boni.at(0), true); }
     if (!robots.empty()) {
-        sort(robots.begin(), robots.end(), [](Direction a, Direction b) -> bool { return a.mag() < b.mag(); });
         if (energy < 10) {
             //                cout << "Going away from " << robots.at(0) << endl;
-            return Message::actionMove(robots.at(0).neg());
+            lastAttack = 0;
+            return Message::actionMove(robots.at(0).neg().rotate(M_PI / 2));
         }
         for (auto robot: robots) {
             if (robot.mag() < 2) {
+                lastAttack = 0;
                 return Message::actionMove(robot.neg().rotate(M_PI / 2));
             } else if (robot.mag() <= 3) {
+                lastAttack = 0;
                 return Message::actionAttack(robot);
             }
         }
         if (nearestCounter == 0) {
+//            if (lastAttack >= 50) {
+//                if (lastAttack == 50) {
+//                    traceRobots.clear();
+//                } else if (lastAttack < 60) {
+//                    traceRobots.push_back(robots);
+//                    return Message::actionRadar();
+//                }
+//            }
             updateNearest(robots.at(0));
         }
     }
@@ -97,6 +105,4 @@ std::string RobotSmart::action(std::vector<std::string> updates) {
     }
 };
 
-[[nodiscard]] std::string RobotSmart::name() const {
-    return "Smart one";
-}
+[[nodiscard]] std::string RobotSmart::name() const { return "Smart one"; }

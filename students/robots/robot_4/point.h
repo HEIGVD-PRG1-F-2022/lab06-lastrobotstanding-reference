@@ -25,6 +25,7 @@ public:
     Point();
 
     Point(int x, int y) : x(x), y(y) {}
+    Point(const std::string& x, const std::string& y) : x(std::stoi(x)), y(std::stoi(y)) {}
 
     explicit operator std::string() const;
 

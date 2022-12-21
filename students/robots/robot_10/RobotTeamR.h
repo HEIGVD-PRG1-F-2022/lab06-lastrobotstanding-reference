@@ -36,7 +36,7 @@ private:
     const unsigned MIN_ENERGY_HUNTING = 15;
     const unsigned MIN_POWER_HUNTING = 5;
     const unsigned MIN_ENERGY_ATTACK = 12;
-    const unsigned MIN_POWER_ATTACK = 3;
+    const unsigned MIN_POWER_ATTACK = 2;
     const unsigned VISIBILITY = 3;
 
 
@@ -47,7 +47,7 @@ private:
 
     std::string randomAction();
 
-    static std::string escapeMove(Direction dirEnemy, std::vector<Direction> robotsAutour);
+    static std::string escapeMove(Direction dirEnemy, const std::vector<Direction>& robotsAround);
 
     static bool isBeside(Direction dir, const std::vector<Direction> &robotsAutour);
 

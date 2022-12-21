@@ -48,6 +48,7 @@ private:
    static unsigned nbRobot;
    std::vector<std::vector<char>> board;
    std::string derniereAction;
+   const size_t NB_COLONNES = 5, NB_LIGNE = 5;
 
 };
 

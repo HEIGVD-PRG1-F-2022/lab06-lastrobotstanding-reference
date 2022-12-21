@@ -18,8 +18,8 @@ MapInfo::MapInfo() {
 void MapInfo::reset() {
     inRangeBonus.clear();
     inRangeRobots.clear();
-    numRobotsInRange = 0;
-    numBonusInRange = 0;
+    //numRobotsInRange = 0;
+    //numBonusInRange = 0;
     numRobotDetected = 0;
 }
 
@@ -29,10 +29,10 @@ void MapInfo::registerInRangeObjects() {
             auto value = currentBoard.at(y).at(x);
             if (value == "R") {
                 inRangeRobots.emplace_back(long(x - radiusCheck), long(y - radiusCheck));
-                numRobotsInRange += 1;
+                //numRobotsInRange += 1;
             } else if (value == "B") {
                 inRangeBonus.emplace_back(long(x - radiusCheck), long(y - radiusCheck));
-                numBonusInRange += 1;
+                //numBonusInRange += 1;
             }
         }
     }
@@ -49,13 +49,14 @@ void MapInfo::updateInformations() {
 }
 
 // ========================================================================================================
-//BONUS RELATED
+// BONUS RELATED
 // ========================================================================================================
 
 void MapInfo::updateBonusOnMap(const Point2D &enemyPosition) {
     auto founder = std::find(bonus.begin(), bonus.end(), enemyPosition);
     if (founder == bonus.end()) return;
-    std::remove(bonus.begin(), bonus.end(), enemyPosition);
+
+    bonus.erase(std::remove(bonus.begin(), bonus.end(), enemyPosition), bonus.end());
 }
 
 void MapInfo::updateBonus(const Point2D &move) {
@@ -63,15 +64,14 @@ void MapInfo::updateBonus(const Point2D &move) {
     for (auto &i: bonus)//Update if bonus is still alive(base on fild of view)
     {
         if (i.mag() > 2) continue;
-
         //OUR robot take the bonus
-        bool underRobot = i == Point2D(0, 0);
+        bool underRobot = (i == Point2D(0, 0));
         //ENEMY take the bonus
         bool pickByEnemy = std::find(inRangeBonus.begin(), inRangeBonus.end(), i) != inRangeBonus.end();
 
         if (!(underRobot || pickByEnemy)) continue;
-        std::remove(bonus.begin(), bonus.end(), i);
-        //MUST CHANGE STATE TO SEARCH
+        bonus.erase(std::remove(bonus.begin(), bonus.end(), i), bonus.end());
+        //std::remove(bonus.begin(), bonus.end(), i);
     }
 }
 

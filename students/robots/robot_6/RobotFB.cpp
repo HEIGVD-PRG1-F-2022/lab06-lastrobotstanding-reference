@@ -4,7 +4,8 @@ Nom du fichier  : RobotFB.cpp
 Auteur(s)       : Ewan Bloechle, Robin Forestier
 Date creation   : 29.11.2022
 
-Description     :
+Description     : Stratégie du robot: s'il y a un robot à proximité il l'attaque
+                  sinon il attend
 
 Remarque(s)     :TODO: ne pas devenir fou (impossible)
 
@@ -14,9 +15,7 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 #include "RobotFB.h"
 
-RobotFB::RobotFB() {
-
-}
+RobotFB::RobotFB() = default;
 
 void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR,
                       std::vector<std::vector<std::string>> &alentour) {
@@ -34,8 +33,8 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
             alentour.resize(5, std::vector<std::string>(5));
 
             //parcours-les 5x5 cases entourant le robot
-            for (int i = 0; i <= 4; i++) {//i et j allant de 0 à 4 au lieu de -2 à 2 à cause de la matrice alentour
-                for (int j = 0; j <= 4; j++) {
+            for (size_t i = 0; i <= 4; i++) {//i et j allant de 0 à 4 au lieu de -2 à 2 à cause de la matrice alentour
+                for (size_t j = 0; j <= 4; j++) {
                     if (i != 2 || j != 2) {//pour toutes les cases sauf celle où se situe notre robot
 
                         //place les éléments de la chaine dans la "Vision" du robot (les 5x5 case autour de lui)
@@ -44,8 +43,8 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
                         //retiens la position du 1er robot repérer, utiliser pour stratégie d'attaque
                         if (lignes.at(entite) == 'R' && !flagR) {
                             flagR = 1;
-                            posRX = i - 2;
-                            posRY = j - 2;
+                            posRX = (int)i - 2;//cast en int pour réduire les warnings
+                            posRY = (int) j - 2;
                         }
 
                     } else {//position de notre robot

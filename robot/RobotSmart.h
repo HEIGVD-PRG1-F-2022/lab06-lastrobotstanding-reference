@@ -14,6 +14,8 @@ class RobotSmart : public Robot {
     unsigned energy = 0, power = 0;
     unsigned nearestCounter = 0;
     Direction nearestDirection;
+    unsigned lastAttack = 0;
+//    vector<vector<Direction>> traceRobots{};
 
     void updateNearest(Direction dir, bool bonus = false);
 

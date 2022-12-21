@@ -23,8 +23,8 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 class RobotFB_diag : public Robot {
 
-    friend void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR, int &posBX, int &posBY, int &flagB,std::vector<std::vector<std::string>> &alentour);
-    friend std::string realisationAction(const int &flagR, const int &posRX, const int &posRY, int &posBX, int &posBY, const int &flagB, size_t energy);
+    friend void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, bool &flagR, int &posBX, int &posBY, bool &flagB,std::vector<std::vector<std::string>> &alentour);
+    friend std::string realisationAction(const bool &flagR, const int &posRX, const int &posRY, int &posBX, int &posBY, const bool &flagB, size_t energy);
 
 public:
 
@@ -52,6 +52,7 @@ public:
 private:
     std::vector<std::vector<std::string>> alentour;
     size_t width = 0, height = 0, energy = 0, power = 0;
+    int posBX = 0, posBY = 0;
 };
 
 

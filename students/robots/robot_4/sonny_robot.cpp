@@ -20,9 +20,9 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 using namespace std;
 
-string SonnyRobot::action(vector<string> updates) {
+string SonnyRobot::action(vector <string> updates) {
     for (const string &update: updates) {
-        vector<string> actionParameters = split(update, " ", 2);
+        vector <string> actionParameters = split(update, " ", 2);
 
         string action = actionParameters.at(0);
         string parameters;
@@ -35,30 +35,20 @@ string SonnyRobot::action(vector<string> updates) {
                 internalMap = fromStringToMap(parameters);
                 break;
             case Action::Name::DAMAGE:
-                //cout << "DAMAGE" << parameters << endl;
-                break;
-            case Action::Name::MOVE:
-                cout << "MOVE" << endl;
-                break;
-            case Action::Name::ATTACK:
-                cout << "ATTACK" << endl;
-                break;
-            case Action::Name::WAIT:
-                cout << "WAIT" << endl;
-                break;
-            case Action::Name::BONUS:
-                cout << "BONUS" << endl;
-                break;
-            default:
+                vector <string> damageInfo = split(parameters, ",", 3);
+                attacker = Point(damageInfo.at(0), damageInfo.at(1));
+                energy -= (unsigned)stoi(damageInfo.at(2));
                 break;
         }
-        updates.erase(find(updates.begin(), updates.end(), update));
     }
 
     target = targetToLock();
 
+    Point normalize = Point::wrap(target, -1, 1);
 
-    return "attack 0,-2";
+    normalize.y *= -1;
+
+    return "move " + (string)normalize;
 }
 
 /*
@@ -71,22 +61,22 @@ string SonnyRobot::action(vector<string> updates) {
 
     if(BONUS){
         if (!robot){
-            cout << "go to Bonus";
+// << "go to Bonus";
         } else{
             if (posBonus - posSonny < posBonus - posRobot){
-                cout << "go to Bonus";
+// << "go to Bonus";
             } else if(energy > 5 + nbrRound){
-                cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
             }else{
-                cout << "MOVE" << endl;
+// << "MOVE" << endl;
             }
         }
 
    if (robot){
        if(energy > 5 + nbrRound){
-           cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
        }else{
-           cout << "MOVE" << endl;
+// << "MOVE" << endl;
        }
    }
 
@@ -110,9 +100,8 @@ string SonnyRobot::name() const {
 }
 
 Point SonnyRobot::targetToLock() {
-    int xCenter = (mapWidth - 1) / 2;
-    int yCenter = (mapHeight - 1) / 2;
-    Point sonny(xCenter, yCenter);
+
+    Point sonny = getCenterMap();
     Point shortestPoint(0, 0);
 
     for (size_t y = 0; y < internalMap.size(); ++y) {
@@ -125,21 +114,26 @@ Point SonnyRobot::targetToLock() {
             }
         }
     }
-    return Point();
+    return shortestPoint;
 }
 
-vector<vector<string>> SonnyRobot::fromStringToMap(const std::string map) {
-    vector<vector<string>> mapVector;
+vector <vector<string>> SonnyRobot::fromStringToMap(const std::string map) {
+    vector <vector<string>> mapVector;
 
-    for (size_t y = 0; y < mapHeight; ++y) {
-        vector<string> line;
-        for (size_t x = 0; x < mapWidth; ++x) {
-            int offset = y * (mapWidth);
+    for (size_t y = 0; y < FIELD_OF_VIEW; ++y) {
+        vector <string> line;
+        for (size_t x = 0; x < FIELD_OF_VIEW; ++x) {
+            int offset = y * (FIELD_OF_VIEW);
             string car = map.substr(x + offset, 1);
             line.push_back(car);
         }
         mapVector.push_back(line);
     }
-
     return mapVector;
+}
+
+Point SonnyRobot::getCenterMap() {
+    int x = (mapWidth - 1) / 2;
+    int y = (mapHeight - 1) / 2;
+    return {x, y};
 }

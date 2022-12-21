@@ -54,7 +54,6 @@ enum class STATE_MACHINE {
 
 class MeinRobot : public Robot {
 private:
-    STATE_MACHINE lastState = STATE_MACHINE::KILL;
     STATE_MACHINE state = STATE_MACHINE::SEARCH;
 
     size_t width = 0;

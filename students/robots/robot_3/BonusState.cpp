@@ -17,24 +17,28 @@
 Point2D BonusState::updateState(MapInfo &info) {
     //Check In range
     Point2D target;
-    if (info.getNumBonusInRange() == 0)//CHECK spawned bonus if none are in field of view
-    {
-        int shortestDistance = std::numeric_limits<int>::max();
+    if (info.getInRangeBonus().empty()){ //CHECK spawned bonus if none are in field of view
+        double shortestDistance = std::numeric_limits<double>::max();
         for (const auto &outVisionCoord: info.bonus) {
-            if (outVisionCoord.mag() < shortestDistance) {
+            double distance = outVisionCoord.mag();
+            if(distance < shortestDistance ) {
                 target = outVisionCoord;
+                shortestDistance = distance;
             }
         }
-    } else if (info.getNumBonusInRange() == 1)// If only one in range go for it
-    {
-        target = info.getInRangeBonus().at(0);
-        //std::cout << "target "  << target.getX()<<std::endl;
-    } else if (info.getNumBonusInRange() > 1)// if many check distances
-    {
-        int shortestDistance = std::numeric_limits<int>::max();
+    }
+    else if (info.getInRangeBonus().size() == 1){ // If only one in range go for it
+        target = info.getInRangeBonus().front();
+    }
+    else if (info.getInRangeBonus().size() > 1){ // if many check distances
+        double shortestDistance = std::numeric_limits<double>::max();
         for (const auto &bonusCoord: info.getInRangeBonus()) {
-            target = bonusCoord.mag() < shortestDistance ? bonusCoord : target;
+            double distance = bonusCoord.mag();
+            if(distance < shortestDistance ) {
+                target = bonusCoord;
+                shortestDistance = distance;
+            }
         }
     }
-    return target.normalize();
+    return target;
 }

@@ -26,14 +26,15 @@ string MyRobot1::action(vector<string> updates) {
     for (const auto &update: updates) {
 
         /*vector<string> params = split(update, " ", 2);
-        cout << "Command: " << params.at(0) << endl;
-        cout << "Parameters: " << params.at(1) << endl;*/
+// << "Command: " << params.at(0) << endl;
+// << "Parameters: " << params.at(1) << endl;*/
 
         vector<Direction> robots, boni;
 
         Message msg(update);
-        robots.insert(msg.robots.begin(), msg.robots.end(), msg.robots.end());
-        boni.insert(msg.boni.begin(), msg.boni.end(), msg.boni.end());
+        robots.insert(msg.robots.begin(), msg.robots.end(), msg.robots.begin());
+        boni.insert(msg.boni.begin(), msg.boni.end(), msg.boni.begin());
+
         switch (msg.msg) {
             case MessageType::UpdateDamage:
                 energy -= msg.energy;
@@ -58,6 +59,7 @@ string MyRobot1::action(vector<string> updates) {
             //run away
         }
     }
+
     return Message::actionWait();
 }
 

@@ -56,7 +56,8 @@ string BorisGuillaumator::action(vector<string> updates) {
     if (updatesMap.contains("damage")) {
         vector<string> params = split(updatesMap["damage"], ",");
         energy -= stoi(params.at(2));
-        return energy > 17 && abs(stoi(params.at(0)) % 2) == 1 && abs(stoi(params.at(1)) % 2) == 1
+        return energy > 25 && power < energy
+               && abs(stoi(params.at(0)) % 2) == 1 && abs(stoi(params.at(1)) % 2) == 1
                ? "move " + to_string(coordToDirection(stoi(params.at(0)))) + "," +
                  to_string(coordToDirection(stoi(params.at(1))))
                : "attack " + params.at(0) + ',' + params.at(1);

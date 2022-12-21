@@ -25,11 +25,17 @@ class SonnyRobot : public Robot {
 
     const std::string ROBOT_NAME = "Sonny";
 
+    const int FIELD_OF_VIEW = 5;
+
     size_t mapWidth = 0, mapHeight = 0;
     unsigned energy = 0, power = 0;
 
     Point target;
     Point targetToLock();
+
+    Point attacker;
+
+    Point getCenterMap();
 
     std::vector<std::vector<std::string>> internalMap;
 

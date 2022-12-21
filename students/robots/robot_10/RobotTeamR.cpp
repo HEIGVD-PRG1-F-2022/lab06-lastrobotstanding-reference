@@ -134,12 +134,14 @@ string RobotTeamR::action(vector<string> updates) {
             }
             if (!tooRisky) {
                 responseAction = Message::actionMove(bonus.unitary());
+                if (bonus.mag() >= VISIBILITY) {
+                    lastMove = responseAction;
+                    numRandom = 0;
+                }
+                return responseAction;
             }
-            if (bonus.mag() >= VISIBILITY) {
-                lastMove = responseAction;
-                numRandom = 0;
-            }
-            return responseAction;
+
+
 
         }
     }
@@ -159,9 +161,26 @@ string RobotTeamR::action(vector<string> updates) {
 
 }
 
-string RobotTeamR::escapeMove(Direction dirEnemy, vector<Direction> robotsAutour) {
+string RobotTeamR::escapeMove(Direction dirEnemy, const vector<Direction>& robotsAround) {
     Direction escapeMove = dirEnemy.unitary();
     escapeMove = escapeMove.neg();
+    vector<Direction> potentialEscapeMoves;
+    vector<Direction> possibleMoves;
+    potentialEscapeMoves.push_back(escapeMove);
+    potentialEscapeMoves.push_back(rotateRounded(M_PI / 4.0, escapeMove));
+    potentialEscapeMoves.push_back(rotateRounded(-M_PI / 4.0, escapeMove));
+    for(auto move: potentialEscapeMoves){
+        if (not isBeside(move, robotsAround)) {
+            possibleMoves.push_back(move);
+        }
+    }
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    shuffle(possibleMoves.begin(), possibleMoves.end(), mt);
+    if(not possibleMoves.empty()){
+        return Message::actionMove(possibleMoves.front());
+    }
 
     /*if (find(robotsAutour.begin(), robotsAutour.end(), escapeMove) == robotsAutour.end()) {
         return Message::actionMove(escapeMove);
@@ -175,7 +194,7 @@ string RobotTeamR::escapeMove(Direction dirEnemy, vector<Direction> robotsAutour
         return Message::actionAttack(robotsAutour.front());
     }
     return "";*/
-    if (!isBeside(escapeMove, robotsAutour)) {
+   /* if (!isBeside(escapeMove, robotsAutour)) {
 
         escapeMove = rotateRounded(-M_PI / 4.0, escapeMove);
         if (!isBeside(escapeMove, robotsAutour)) {
@@ -190,7 +209,7 @@ string RobotTeamR::escapeMove(Direction dirEnemy, vector<Direction> robotsAutour
                 }
             }
         }
-    }
+    }*/
     return Message::actionMove(escapeMove);
 
 }
@@ -248,11 +267,11 @@ std::string RobotTeamR::randomAction() {
 bool RobotTeamR::isBeside(Direction dir, const vector<Direction> &robotsAutour) {
     for (const auto &i: robotsAutour) {
         if (floor((dir - i).mag()) <= 1) {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 Direction RobotTeamR::rotateRounded(double angle, Direction dir) {

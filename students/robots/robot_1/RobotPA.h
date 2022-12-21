@@ -20,10 +20,10 @@ public:
     string action(vector<string> updates) override;
 
     [[nodiscard]] string name() const override { return "RobotPA"; };
-    int getEnergy() const;
+    [[nodiscard]] int getEnergy() const;
     void setEnergy(int newEnergy);
-    unsigned getPower() const;
-    unsigned getRobotNumber() const;
+    [[nodiscard]] unsigned getPower() const;
+    [[nodiscard]] unsigned getRobotNumber() const;
 
 private:
     size_t width, height;

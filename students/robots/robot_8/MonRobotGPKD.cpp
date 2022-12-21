@@ -20,6 +20,7 @@ using namespace std;
 // Initialisation de la variable static
 unsigned MonRobotGPKD::nbRobot = 0;
 
+
 enum class UPDATE{BOARD, DAMAGE, ENERGY, POWER, BONUS, ROBOT};
 
 void MonRobotGPKD::setConfig(size_t widthInit, size_t heightInit,
@@ -28,6 +29,8 @@ void MonRobotGPKD::setConfig(size_t widthInit, size_t heightInit,
    this->height= heightInit;
    this->energy = energyInit;
    this->power = powerInit;
+   vector<vector<char>> resize(NB_LIGNE,vector<char>(NB_COLONNES));
+   board = resize;
    ++nbRobot;
 }
 
@@ -47,7 +50,7 @@ string MonRobotGPKD::action(vector<string> updates) {
 }
 
 string MonRobotGPKD::name() const {
-   return "MonRobotGPKD " + to_string(MonRobotGPKD::nbRobot);
+   return "MonRobotGPKD ";
 }
 
 vector<int> MonRobotGPKD::selectionUpdate(const vector<string> &
@@ -83,20 +86,16 @@ command) {
 }
 
 void MonRobotGPKD::boardUpdate(const string &s) {
-   size_t NB_COLONNES = 5, NB_LIGNE = 5;
-   //vector<vector<char>> board(NB_LIGNE, vector<char>(NB_COLONNES));
-//   board = {(NB_LIGNE, vector<char>(NB_COLONNES))};
-   board.resize(NB_LIGNE);
-
 
    // Vérification que la chaîne soit de la bonne taille
    if (NB_COLONNES * NB_LIGNE == s.length()) {
-      size_t j = 0;
+      size_t ligne = 0;
       for (size_t i = 0; i < s.length(); ++i) {
-         board.at(j).resize(NB_COLONNES);
-         board.at(j).at(i % NB_COLONNES) = s.at(i);
+         board.at(ligne).at(i % NB_COLONNES) = s.at(i);
+
+         // Si on atteint la dernière colonne on incrémente la ligne
          if (i % NB_COLONNES == NB_COLONNES - 1) {
-            ++j;
+            ++ligne;
          }
       }
    }
@@ -106,13 +105,12 @@ vector<int> MonRobotGPKD::damageUpdate(const string &s, std::vector<int> vDamage
    const string VIRGULE = ",";
    vector<string> cmdDamage = split(s, VIRGULE, 3);
 
-
    // Initialise le Vector vDamage [int posX, int posY, int degats]
    for (size_t i = 0; int &val: vDamage) {
       vDamage.push_back(stoi(cmdDamage.at(i)));
       ++i;
    }
-   energy -= (unsigned) vDamage.at((size_t) vDamage.back());
+   energy -= (unsigned) vDamage.back();
 
    return vDamage;
 }

@@ -18,7 +18,6 @@ class Game {
     const unsigned ENERGY_INIT = 10;
     const unsigned POWER_INIT = 1;
     const unsigned BONUS_RECURRENCE = 100;
-    const unsigned IDLE_LIMIT = 200;
     const unsigned MAX_ROUNDS = 10000;
 
     vector<Robot *> waitList;
@@ -29,6 +28,8 @@ class Game {
     unsigned bonusTimeout = 1;
     size_t side = 0;
     unsigned round = 0, idle = 0;
+    unsigned idle_limit = 200;
+    bool standard;
 
     long robotsAlive();
     size_t largestRobotAlive();
@@ -52,7 +53,7 @@ class Game {
     void display();
 
 public:
-    Game() = default;
+    Game(bool standard = false): standard(standard){};
 
     void addRobot(Robot *r);
 

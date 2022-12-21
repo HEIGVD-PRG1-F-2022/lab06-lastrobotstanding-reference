@@ -37,8 +37,8 @@ string RobotPA::action(vector<string> updates) {
     for(vector<char> v : board2D) {
         for(char c : v){
             if(c != ' ' && c != char(robotNumber + 48)){
-                size_t posXRobotToAttack = size_t(find(v.begin(), v.end(), c) - v.begin() - 2);
-                size_t posYRobotToAttack = size_t(find(board2D.begin(), board2D.end(), v) -
+                int posXRobotToAttack = int(find(v.begin(), v.end(), c) - v.begin() - 2);
+                int posYRobotToAttack = int(find(board2D.begin(), board2D.end(), v) -
                         board2D.begin() - 2); //-2 car on cherche la position du
                         // robot a attaquer par rapport à l'attanquant
                 return "attack " + to_string(posXRobotToAttack) + "," +

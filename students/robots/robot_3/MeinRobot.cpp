@@ -7,7 +7,6 @@
 // ================================================================================
 
 #include "MeinRobot.h"
-//#include "libdio/display.h"
 
 int indexOf(const std::vector<std::string> &instructions, const std::string &val) {
     for (size_t i = 0; i < instructions.size(); ++i) {
@@ -33,19 +32,13 @@ Point2D getXY(size_t index, size_t width) {
 void MeinRobot::setBoard(const std::string &info) {
     for (size_t i = 0; i < info.length(); ++i) {
         Point2D coord = getXY(i, SEARCH_WIDTH);
-        int x = coord.getX();
-        int y = coord.getY();
+        auto x = static_cast<size_t>(coord.getX());
+        auto y = static_cast<size_t>(coord.getY());
         board.at(y).at(x) = info.at(i);
     }
-    board.at(SEARCH_WIDTH / 2).at(SEARCH_WIDTH / 2) = "X";
+    board.at(SEARCH_RADIUS).at(SEARCH_RADIUS) = "X";
 
     mapInfo.currentBoard = board;
-    /*
-    Display::init();
-    Display::DString display(Display::Color::PINK);
-    Display::systemClearScreen();
-    std::cout << Display::displayGrid(mapInfo.currentBoard, true);
-*/
 }
 
 void MeinRobot::setDamage(const std::string &info) {
@@ -122,12 +115,17 @@ void MeinRobot::gameEngineUpdate(std::vector<std::string> updates) {
             break;
         case STATE_MACHINE::RETRIEVE:
             if (target == Point2D(0, 0)) {
-                state = mapInfo.bonus.size() == 0 ? STATE_MACHINE::SEARCH : STATE_MACHINE::RETRIEVE;
+                state = mapInfo.bonus.empty() ? STATE_MACHINE::SEARCH : STATE_MACHINE::RETRIEVE;
             }
             break;
         case STATE_MACHINE::KILL:
-            if (target == Point2D(0, 0) || mapInfo.bonus.size() == 0) {
-                state = STATE_MACHINE::SEARCH;
+            if (target == Point2D(0, 0) && mapInfo.getInRangeRobots().empty()) {
+                if(mapInfo.getInRangeRobots().empty()){
+                    state = STATE_MACHINE::SEARCH;
+                }
+                else{
+                    target = mapInfo.getInRangeRobots().front();
+                }
             }
             break;
     }
@@ -165,19 +163,32 @@ void MeinRobot::setConfig(size_t width, size_t height, unsigned int energy, unsi
 
 void MeinRobot::resetValues() {
     aggressors.clear();
-    std::for_each(board.begin(), board.end(), [](std::vector<std::string> &value) { std::fill(value.begin(), value.end(), " "); });
+
+    for (auto& i : board) {
+        std::fill(i.begin(), i.end()," ");
+    }
 }
 
 std::string MeinRobot::move(const Point2D &direction) {
-    size_t x = static_cast<size_t>(direction.getX()) + 2;
-    size_t y = static_cast<size_t>(direction.getY()) + 2;
-    std::string targetMessage = std::to_string(x).append(",").append(std::to_string(y));
+    Point2D dirNormalize = direction.normalize();
+    bool isEnemyInTheWay = board.at(dirNormalize.getY() + SEARCH_RADIUS).at(dirNormalize.getX()+ SEARCH_RADIUS) == "R";
 
-    bool isEnemyInTheWay = board.at(y).at(x) == "R";
-    mapInfo.setLastMove(isEnemyInTheWay ? Point2D() : direction);
+    Point2D escapeMove = Point2D(dirNormalize.getY() ,dirNormalize.getX());
+    if(escapeMove.getX() == escapeMove.getY())
+    {
+        escapeMove = Point2D(escapeMove.getX(),0);
+    }
 
-    return (isEnemyInTheWay ? "attack " : "move ") + targetMessage;
+    mapInfo.setLastMove(isEnemyInTheWay ? escapeMove : dirNormalize);
+    return "move " + (isEnemyInTheWay ? escapeMove.toString() : dirNormalize.toString());
+
+    //mapInfo.setLastMove(isEnemyInTheWay ? Point2D() : dirNormalize);
+    //return (isEnemyInTheWay ? "attack " : "move ") + dirNormalize.toString();
 }
+
+//===================================================================================================
+// SECTION : STATE MACHINE
+//===================================================================================================
 
 //===================================================================================================
 // SECTION : STRATEGY
@@ -187,13 +198,21 @@ std::string MeinRobot::strategy() {
     std::string newAction = " ";
     switch (state) {
         case STATE_MACHINE::SEARCH:
-            newAction = "radar";
+            if(!aggressors.empty()){
+                Point2D aggressorPosition = aggressors.front();
+                newAction = move(Point2D(-aggressorPosition.getX(),-aggressorPosition.getY()));
+            }
+            else{
+                newAction = "radar";
+                mapInfo.bonus.clear();
+            }
             break;
         case STATE_MACHINE::RETRIEVE:
             target = bonusState.updateState(mapInfo);
             newAction = target == Point2D(0, 0) ? move(Point2D(1, 1)) : move(target);
             break;
         case STATE_MACHINE::KILL:
+            target = mapInfo.getInRangeRobots().empty() ? target : mapInfo.getInRangeRobots().front();
             newAction = move(target);
             target += mapInfo.lastMove;
             break;

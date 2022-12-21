@@ -30,34 +30,40 @@ void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_
     dy = height_init;
     life = (int) energy_init;
     pow = (int) power_init;
-};
+}
 
 string MonRobot::action(vector<string> updates) {
     //Transforme la vision du robot en vector<vector<char>>
     vector<vector<char>> board;
     for (auto &s: updates) {
         board = boardStringToVectors(s);
-        if(!board.empty()){
+        if (!board.empty()) {
             break;
         }
     }
     vector<vector<int>> bonusCoordinates = objectNear(board, 'B');
     vector<vector<int>> enemyCoordinates = objectNear(board, 'R');
     if (!bonusCoordinates.empty()) {
-        return move(bonusCoordinates.front().front(), bonusCoordinates.front().back());    //goToBonus(bonusCoordinates);
+        return move(bonusCoordinates.front().front(),
+                    bonusCoordinates.front().back());    //goToBonus(bonusCoordinates);
     } else {
         if (!enemyCoordinates.empty()) {
-            if (life < 5) {
+            if (life < 5 && pow < 10) {
                 return fleeRobot(enemyCoordinates);
             } else {
                 return fightFirstTarget(enemyCoordinates);
             }
         } else {
-            return goBackRight();
+            switch (rand() % 5) {
+                case 0 :
+                    return goUpLeft();
+                case 1 :
+                    return goBackLeft();
+                default:
+                    return goBackRight();
+            }
         }
     }
-
-    return "wait";//fightFirstTarget(board);
 }
 
 string MonRobot::name() const {
@@ -120,13 +126,11 @@ string MonRobot::fightFirstTarget(const vector<vector<int>> &enemyCoordinates) {
 
 vector<vector<int>> MonRobot::objectNear(const vector<vector<char>> &board, char objectSymbol) {
     vector<vector<int>> objectCoordinates;
-    if (objectSymbol == 'R' || objectSymbol == 'B') {
-        //S'il y a un ennemi ou un bonus aux alentours du robot
-        for (size_t y = 0; y < 5; y++) {
-            for (size_t x = 0; x < 5; x++) {
-                if (board.at(y).at(x) == objectSymbol) {
-                    objectCoordinates.emplace_back(vector<int>{(int) (x - 2), (int) (y - 2)});
-                }
+    //S'il y a un ennemi ou un bonus aux alentours du robot
+    for (size_t y = 0; y < 5; y++) {
+        for (size_t x = 0; x < 5; x++) {
+            if (board.at(y).at(x) == objectSymbol) {
+                objectCoordinates.emplace_back(vector<int>{(int) (x - 2), (int) (y - 2)});
             }
         }
     }
@@ -156,7 +160,7 @@ string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates
     vector<int> coordNearestRobot(2);
     int coordResult = 5; //need a number higher than 2 + 2
 
-    for (auto coord : enemyCoordinates) {
+    for (auto coord: enemyCoordinates) {
         int x = coord.front(), y = coord.back();
         if (x != 0 || y != 0) {
             if (abs(x) + abs(y) < coordResult) {

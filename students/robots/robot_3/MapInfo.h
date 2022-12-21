@@ -32,8 +32,8 @@ class MapInfo {
     size_t width = 0;
     size_t height = 0;
 
-    size_t numRobotsInRange = 0;
-    size_t numBonusInRange = 0;
+    //size_t numRobotsInRange = 0;
+    //size_t numBonusInRange = 0;
 
     void updateBonus(const Point2D &lastMove);
 
@@ -48,9 +48,6 @@ public:
 
     MapInfo();
     MapInfo(size_t width, size_t height, size_t radiusCheck);
-
-    [[nodiscard]] size_t getNumRobotsInRange() const { return numRobotsInRange; }
-    [[nodiscard]] size_t getNumBonusInRange() const { return numBonusInRange; }
 
     [[nodiscard]] std::vector<Point2D> getInRangeRobots() const { return inRangeRobots; }
     [[nodiscard]] std::vector<Point2D> getInRangeBonus() const { return inRangeRobots; }
