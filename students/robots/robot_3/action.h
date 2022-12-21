@@ -14,8 +14,8 @@ Compiler        : Mingw-w64 g++ 11.2.0
 #ifndef ROBOT_ACTION_H
 #define ROBOT_ACTION_H
 
+#include "Point2.h"
 #include <string>
-#include "point.h"
 
 const std::string BOARD_STRING = "board";
 const std::string DAMAGE_STRING = "damage";
@@ -37,7 +37,7 @@ public:
 
     static Name resolveAction(std::string &action);
 
-    static std::string generateDamage(Point3 coords, unsigned int energy);
+    static std::string generateDamage(Point23 coords, unsigned int energy);
 };
 
 #endif //ROBOT_ACTION_H

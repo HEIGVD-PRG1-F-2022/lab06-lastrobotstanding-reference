@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------------
 Project Name    : lab06-lastrobotstanding-comme_tu_veux
-File's Name     : Point3.h
+File's Name     : Point.h
 Author          :   Aellen Quentin
                     Atasever Mehmet
                     Salamin Chloé
@@ -17,26 +17,26 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 #include <string>
 
-class Point3 {
-    friend Point3 operator+(Point3 lhs, const Point3 &rhs);
+class Point {
+    friend Point operator+(Point lhs, const Point &rhs);
 public:
     int x, y;
 
-    Point3();
+    Point();
 
-    Point3(int x, int y) : x(x), y(y) {}
+    Point(int x, int y) : x(x), y(y) {}
 
     explicit operator std::string() const;
 
-    static Point3 fromStrToPoint3(const std::string& coords, const std::string& sep = ",");
+    static Point fromStrToPoint(const std::string& coords, const std::string& sep = ",");
 
-    bool operator == (Point3 coords) const;
+    bool operator == (Point coords) const;
 
-    Point3& operator += (const Point3& rhs);
+    Point& operator += (const Point& rhs);
 
-    static Point3& wrap(Point3 &coords, int min, int max);
+    static Point& wrap(Point &coords, int min, int max);
 
-    int distance(Point3 coords) const;
+    int distance(Point coords) const;
 };
 
 #endif //ROBOT_POINT_H

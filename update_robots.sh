@@ -12,7 +12,7 @@ check_robots() {
   TMPDIR=$( mktemp -d )
   for robot in $STUDENTS_DIR/*; do
     echo -e "\nTesting $robot"
-    if (cd $TMPDIR; g++ -c -std=c++2a $BASEDIR/$robot/*.cpp -I $BASEDIR/librobots/include); then
+    if (cd $TMPDIR; g++ -c -std=c++2a $BASEDIR/$robot/*.cpp -I $BASEDIR/librobots/include -I $BASEDIR/$robot); then
       echo "SUCCESS: $robot compiles robotfully"
       if grep -e "class.*\: *public Robot" $robot/*.h; then
         echo $robot >>$ROBOTS_SUCCESS

@@ -1,44 +1,42 @@
-// ================================================================================
-// File : Point.h
-// Project name : LABO - LastRobotStanding
-// Project members :
-// - Florian Duruz
-// File created by Florian Duruz on 30/11/2022.
-// ================================================================================
+/*
+-----------------------------------------------------------------------------------
+Project Name    : lab06-lastrobotstanding-comme_tu_veux
+File's Name     : Point.h
+Author          :   Aellen Quentin
+                    Atasever Mehmet
+                    Salamin Chloé
+Creation Date   : 02.12.2022
+Description     :
+Remarque(s)     :
+Compiler        : Mingw-w64 g++ 11.2.0
+-----------------------------------------------------------------------------------
+*/
 
-#ifndef LASTROBOTSTANDING_POINT_H
-#define LASTROBOTSTANDING_POINT_H
+#ifndef ROBOT_POINT_H
+#define ROBOT_POINT_H
 
-#include <iostream>
-#include <cassert>
-#include <cmath>
+#include <string>
 
-class Point
-{
-    long int x = 0;
-    long int y = 0;
-
-    //friend Point operator=(Point& lhs, const Point& rhs);
-    friend Point operator+(Point lhs, const Point& rhs);
-    friend Point operator-(Point lhs, const Point& rhs);
-    friend bool operator==(const Point& lhs, const Point& rhs);
-    friend std::ostream& operator<<(std::ostream& lhs, const Point& rhs);
-
+class Point {
+    friend Point operator+(Point lhs, const Point &rhs);
 public:
-    Point(): x(0), y(0){};
-    Point(long int x, long int y): x(x), y(y){};
+    int x, y;
 
-    Point& operator+=(const Point& rhs);
-    Point& operator-=(const Point& rhs);
-    //Point& operator=( const Point& rhs);
-    double mag() const;
+    Point();
 
-    double dist(const Point& rhs) const;
+    Point(int x, int y) : x(x), y(y) {}
 
-    long int getX() const;
-    long int getY() const;
+    explicit operator std::string() const;
 
-    Point normalize() const;
+    static Point fromStrToPoint(const std::string& coords, const std::string& sep = ",");
+
+    bool operator == (Point coords) const;
+
+    Point& operator += (const Point& rhs);
+
+    static Point& wrap(Point &coords, int min, int max);
+
+    int distance(Point coords) const;
 };
 
-#endif //LASTROBOTSTANDING_POINT_H
+#endif //ROBOT_POINT_H

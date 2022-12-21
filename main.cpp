@@ -28,6 +28,8 @@ void gameSilent(size_t rounds) {
     Display::init();
     Display::clearScreen();
     size_t draws = 0;
+    vector<string> deaths;
+    const size_t MAX_DEATHS = 10;
 
     for (size_t round = 0; round < rounds; round++) {
         Game G = setupGame();
@@ -61,7 +63,7 @@ void gameSilent(size_t rounds) {
 
 void game() {
     Game G = setupGame();
-    auto winner = G.play(false);
+    auto winner = G.play(true);
     cout << Display::DString(Display::Color::YELLOW);
     if (winner == nullptr) {
         cout << "The game ended in a draw" << endl;

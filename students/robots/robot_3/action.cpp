@@ -31,6 +31,6 @@ Action::Name Action::resolveAction(std::string &action) {
     return Action::Name::NOTDEFINED;
 }
 
-std::string Action::generateDamage(Point3 coords, unsigned int energy) {
+std::string Action::generateDamage(Point23 coords, unsigned int energy) {
     return DAMAGE_STRING + " " + (std::string) coords + "," + std::to_string(energy);
 }

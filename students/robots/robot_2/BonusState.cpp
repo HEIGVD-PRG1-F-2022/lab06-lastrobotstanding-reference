@@ -30,7 +30,7 @@ Point BonusState::updateState(MapInfo info)
     else if(info.getNumBonusInRange() == 1) // If only one in range go for it
     {
         target = info.getInRangeBonus().at(0);
-        //std::cout << "target "  << target.getX()<<std::endl;
+        //std::// << "target "  << target.getX()<<std::endl;
     }
     else if(info.getNumBonusInRange() > 1) // if many check distances
     {

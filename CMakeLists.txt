@@ -12,7 +12,7 @@ if (EXISTS librobots/)
 else ()
     FetchContent_Declare(librobots
             GIT_REPOSITORY https://github.com/HEIGVD-PRG1-F-2022/librobots.git
-            GIT_TAG v0.2.7
+            GIT_TAG v0.2.9
             )
     FetchContent_MakeAvailable(librobots)
 endif ()
@@ -24,7 +24,7 @@ if (EXISTS libdio/)
 else ()
     FetchContent_Declare(libdio
             GIT_REPOSITORY https://github.com/HEIGVD-PRG1-F-2022/libdio.git
-            GIT_TAG v0.2.3
+            GIT_TAG v0.2.4
             )
     FetchContent_MakeAvailable(libdio)
 endif ()

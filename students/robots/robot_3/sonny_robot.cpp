@@ -39,7 +39,7 @@ string SonnyRobot::action(vector<string> updates) {
 // << "BOARD" << endl;
                 break;
             case Action::Name::DAMAGE:
-                //cout << "DAMAGE" << parameters << endl;
+                //// << "DAMAGE" << parameters << endl;
                 break;
             case Action::Name::MOVE:
 // << "MOVE" << endl;

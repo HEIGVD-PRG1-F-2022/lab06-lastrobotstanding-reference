@@ -14,10 +14,17 @@ long Game::robotsAlive() {
     return count_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });
 }
 
-void Game::waitListToArena() {
-    if (waitList.empty()) {
-        throw runtime_error("No robot waiting for the arena");
+size_t Game::largestRobotAlive() {
+    vector<size_t> alive;
+    for (size_t i = 1; const auto &robot: robots) {
+        if (!robot.isDead()) { alive.push_back(i); }
+        ++i;
     }
+    return *max_element(alive.begin(), alive.end());
+}
+
+void Game::waitListToArena() {
+    if (waitList.empty()) { throw runtime_error("No robot waiting for the arena"); }
     side = size_t(10 * sqrt(waitList.size()));
     for (auto robot: waitList) {
         robots.emplace_back(robot, Position::random(unsigned(side), unsigned(side), side, side), side, ENERGY_INIT, POWER_INIT);
@@ -26,16 +33,12 @@ void Game::waitListToArena() {
 
 void Game::actionAttack() {
     for (const auto &attacker: robots) {
-        if (attacker.isDead()) {
-            continue;
-        }
+        if (attacker.isDead()) { continue; }
         Message act = attacker.getAction();
         if (act.msg == MessageType::ActionAttack) {
             auto destination = attacker.getPosition() + act.robots.at(0);
             for (auto &defender: robots) {
-                if (defender.isDead()) {
-                    continue;
-                }
+                if (defender.isDead()) { continue; }
                 if (destination == defender.getPosition()) {
                     defender.actionAttack(attacker, destination);
                     idle = 0;
@@ -47,30 +50,20 @@ void Game::actionAttack() {
 
 void Game::actionMove() {
     for (auto &robot: robots) {
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
         Message act = robot.getAction();
-        if (act.msg == MessageType::ActionMove) {
-            robot.actionMove(act.robots.at(0).unitary());
-        }
+        if (act.msg == MessageType::ActionMove) { robot.actionMove(act.robots.at(0).unitary()); }
     }
     for (size_t i = 0; i < robots.size(); i++) {
         for (size_t j = 0; j < robots.size(); j++) {
-            if (i == j) {
-                continue;
-            }
-            if (robots.at(i).isDead() || robots.at(j).isDead()) {
-                continue;
-            }
+            if (i == j) { continue; }
+            if (robots.at(i).isDead() || robots.at(j).isDead()) { continue; }
             robots.at(i).checkCollision(robots.at(j));
         }
     }
     positions.clear();
     for (const auto &robot: robots) {
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
         positions.push_back(robot.getPosition());
     }
 }
@@ -78,9 +71,7 @@ void Game::actionMove() {
 void Game::actionRadar() {
     radar.clear();
     for (auto &robot: robots) {
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
         Message act = robot.getAction();
         if (act.msg == MessageType::ActionRadar) {
             robot.actionRadar(positions);
@@ -104,9 +95,7 @@ void Game::createBonus() {
             }
         } while (find_if(boni.begin(), boni.end(), [newBonus](Bonus b) -> bool { return b.pos == newBonus->pos; }) != boni.end());
         for (auto &robot: robots) {
-            if (robot.isDead()) {
-                continue;
-            }
+            if (robot.isDead()) { continue; }
             robot.actionBonus(newBonus->pos);
         }
         boni.push_back(*newBonus);
@@ -115,9 +104,7 @@ void Game::createBonus() {
 
 void Game::checkBonus() {
     for (auto &robot: robots) {
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
         auto b = find_if(boni.begin(), boni.end(), [robot](Bonus b) -> bool { return b.pos == robot.getPosition(); });
         if (b != boni.end()) {
             idle = 0;
@@ -139,35 +126,18 @@ void Game::sendUpdates() {
     transform(boni.begin(), boni.end(), boniPos.begin(), [](Bonus b) -> Position { return b.pos; });
     auto updateBoards = Message::updateBoard(positions, boniPos);
     for (auto &robot: robots) {
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
+        robot.actionRadar(radar);
         robot.sendUpdate(updateBoards.front());
         updateBoards.erase(updateBoards.begin());
     }
-}
-
-void Game::display_debug() {
-    cout << endl
-         << "Robots: ";
-    for (const auto &robot: robots) {
-        cout << robot.getPosition() << " :: ";
-    }
-    cout << endl
-         << "Boni: ";
-    for (auto bonus: boni) {
-        cout << bonus.pos << " :: ";
-    }
-    cout << endl;
 }
 
 void Game::display() {
     vector<vector<Display::DString>> grid(side, vector<Display::DString>(side));
     for (int robotNbr = 0; const auto &robot: robots) {
         robotNbr++;
-        if (robot.isDead()) {
-            continue;
-        }
+        if (robot.isDead()) { continue; }
         auto pos = robot.getPosition();
         Display::DString robotStr;
         switch (robot.getAction().msg) {
@@ -191,24 +161,33 @@ void Game::display() {
     for (const auto &bonus: boni) {
         grid.at(size_t(bonus.pos.getY())).at(size_t(bonus.pos.getX())) = Display::DString(Display::Color::YELLOW) << "B";
     }
+
     Display::DString().cursorHome().print();
     Display::displayGrid(grid, false).print();
-    cout << (Display::DString("Round: ") << round << " Idle for: " << idle).cursorDelete(Display::DString::LineDelete::TO_END) << endl;
-    for (int i = 1; const auto &robot: robots) {
+
+    displayRobotsStats((to_string(largestRobotAlive()).size() + 1) * side + 5, 1);
+}
+
+void Game::displayRobotsStats(size_t x, size_t y) {
+    cout << (Display::DString().cursorPosition(x, y) << "Round: " << round << " Idle for: " << idle)
+                    .cursorDelete(Display::DString::LineDelete::TO_END)
+         << endl;
+    for (size_t i = 1; const auto &robot: robots) {
+        Display::DString str;
+        str.cursorPosition(x, y + i + 1);
         if (robot.isDead()) {
-            cout << (Display::DString(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause());
+            cout << (str.setColor(Display::Color::RED) << i++ << " - Robot: " << robot.getName() << " - RIP: " << robot.getDeathCause());
         } else {
-            cout << (Display::DString(Display::Color::GREEN) << i++ << " - Robot: " << robot.getName() << " - Energy: " << robot.getEnergy()
-                                                             << " - Power: " << robot.getPower() << " - action: " << robot.getAction().getMessageType());
+            cout << (str.setColor(Display::Color::GREEN)
+                     << i++ << " - Robot: " << robot.getName() << " - Energy: " << robot.getEnergy() << " - Power: " << robot.getPower()
+                     << " - action: " << robot.getAction().getMessageType());
         }
         cout << Display::DString().cursorDelete(Display::DString::LineDelete::TO_END) << endl;
     }
 }
 
 void Game::addRobot(Robot *r) {
-    if (!robots.empty()) {
-        throw runtime_error("Play already started!");
-    }
+    if (!robots.empty()) { throw runtime_error("Play already started!"); }
     waitList.push_back(r);
 }
 
@@ -219,17 +198,19 @@ RobotState *Game::play(bool show) {
     }
     waitListToArena();
     do {
+        size_t largestAlive = largestRobotAlive();
         actionAttack();
         actionMove();
         actionRadar();
         createBonus();
         checkBonus();
         if (show) {
+            if (largestRobotAlive() < largestAlive) { Display::DString().clearScreen().print(); }
             display();
-            this_thread::sleep_for(1000ms / log(round + 2));
+            this_thread::sleep_for(50ms / pow(log(round + 2), 2));
         }
         sendUpdates();
-    } while (robotsAlive() > 1 && ++idle < IDLE_LIMIT && ++round < 10000);
+    } while (robotsAlive() > 1 && ++idle < IDLE_LIMIT && ++round < MAX_ROUNDS);
 
     if (robotsAlive() == 1) {
         return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });

@@ -49,7 +49,7 @@ void MeinRobot::setBoard(const std::string& cells)
     Display::init();
     Display::DString display(Display::Color::PINK);
     Display::systemClearScreen();
-    std::cout << Display::displayGrid(mapInfo.currentBoard, true);
+    std::// << Display::displayGrid(mapInfo.currentBoard, true);
 */
 }
 
@@ -59,7 +59,7 @@ void MeinRobot::setDamage(const std::string& info)
 
     Point bullyPoint(stoi(args.at(0)),stoi(args.at(1)));
     aggressors.push_back(bullyPoint);
-    //std::cout << "aggressor at " << aggressors.front() << std::endl;
+    //std::// << "aggressor at " << aggressors.front() << std::endl;
     energy -= unsigned(stoi(args.at(2)));
 }
 
@@ -160,7 +160,7 @@ std::string MeinRobot::move(const Point &direction)
 {
     std::string targetMessage = std::to_string(direction.getX()).append(",").append(std::to_string(direction.getY()));
     mapInfo.setLastMove(direction);
-    //std::cout << std::endl << "move "  << direction<<std::endl;
+    //std::// << std::endl << "move "  << direction<<std::endl;
     return "move " + targetMessage;
 }
 
