@@ -6,8 +6,6 @@ Date creation   : 29.11.2022
 
 Description     : LastRobotStanding
 
-Remarque(s)     : <a completer>
-
 -----------------------------------------------------------------------------------
 */
 
@@ -18,8 +16,8 @@ Remarque(s)     : <a completer>
 using namespace std;
 
 MonRobot::MonRobot() {
-    dx = 0;
-    dy = 0;
+    //dx = 0;
+    //dy = 0;
     life = 0;
     pow = 0;
     str_name = "Davillaume PRIME";
@@ -27,8 +25,12 @@ MonRobot::MonRobot() {
 
 void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
                          unsigned power_init) {
-    dx = width_init;
-    dy = height_init;
+    //pour éviter les warnings
+    (void)width_init;
+    (void)height_init;
+    //dx = width_init;
+    //dy = height_init;
+
     life = (int) energy_init;
     pow = (int) power_init;
 }
@@ -55,7 +57,7 @@ string MonRobot::action(vector<string> updates) {
                 return fightFirstTarget(enemyCoordinates);
             }
         } else {
-            switch (getRandomNumber(5)) {
+            switch (getRandomNumberForDirection()) {
                 case 0 :
                     return goUpLeft();
                 case 1 :
@@ -174,10 +176,10 @@ string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates
     return move(coordNearestRobot.front(), coordNearestRobot.back());
 }
 
-int MonRobot::getRandomNumber(int max) {
+int MonRobot::getRandomNumberForDirection() {
     random_device rd;
     mt19937 mt(rd());
-    uniform_int_distribution<int> dist(0, max);
+    uniform_int_distribution<int> dist(0, 5);
     return dist(mt);
 }
 

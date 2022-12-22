@@ -10,7 +10,6 @@
 #include "robot_6/RobotFB.cpp"
 #include "robot_6/RobotFB_diag.cpp"
 #include "robot_7/BorisGuillaumator.cpp"
-//#include "robot_8/MonRobotGPKD.cpp"
 #include "robot_8/MonRobotGPKD_v2.cpp"
 #include "robot_9/MyRobot.cpp"
 #include "robot_10/RobotTeamR.cpp"

@@ -25,11 +25,12 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 class MonRobotGPKD_v2 : public Robot{
 public:
 
-   void setConfig(size_t width, size_t height, unsigned energy, unsigned power);
+   void  setConfig(size_t width, size_t height, unsigned energy, unsigned
+   power) override;
 
-   std::string action(std::vector<std::string> updates);
+   std::string action(std::vector<std::string> updates) override;
 
-   std::string name()const;
+   [[nodiscard]] std::string name()const override;
 
 private:
    void selectionUpdate(const std::vector<std::string> &command);

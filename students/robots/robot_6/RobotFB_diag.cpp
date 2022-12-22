@@ -74,7 +74,7 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 
 
         }
-        else if(effet == "damage"){
+        else if(effet == "damage"){//si on veut ajuster energy/power ici ou faire une stratégie de contre attaque
 
         }
 
@@ -110,6 +110,9 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
                 flagB = true;
             }
 
+
+        }
+        else if(effet == "robot") {//si on veut utiliser le radar
 
         }
     }
@@ -148,8 +151,7 @@ std::string realisationAction(const int &flagR, const int &posRX, const int &pos
         retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
     }
     else{//pas de bonus ni de robot -> avance en diagonal
-        //retour = "move 1,1";
-        retour = "wait";
+        retour = "move 1,1";
     }
 
 

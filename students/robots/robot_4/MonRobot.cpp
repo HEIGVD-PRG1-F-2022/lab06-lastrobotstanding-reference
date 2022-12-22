@@ -6,54 +6,67 @@ Date creation   : 29.11.2022
 
 Description     : LastRobotStanding
 
-Remarque(s)     : <a completer>
-
 -----------------------------------------------------------------------------------
 */
 
 #include "MonRobot.h"
 #include "librobots/Message.h"
+#include <random>
 
 using namespace std;
 
 MonRobot::MonRobot() {
-    dx = 0;
-    dy = 0;
+    //dx = 0;
+    //dy = 0;
     life = 0;
     pow = 0;
-    str_name = "Dave et Gui";
+    str_name = "Davillaume PRIME";
 }
 
 void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
                          unsigned power_init) {
-    dx = width_init;
-    dy = height_init;
+    //pour éviter les warnings
+    (void)width_init;
+    (void)height_init;
+    //dx = width_init;
+    //dy = height_init;
+
     life = (int) energy_init;
     pow = (int) power_init;
-};
+}
 
 string MonRobot::action(vector<string> updates) {
     //Transforme la vision du robot en vector<vector<char>>
     vector<vector<char>> board;
     for (auto &s: updates) {
         board = boardStringToVectors(s);
-        if(!board.empty()){
+        if (!board.empty()) {
             break;
         }
     }
-
-    vector<vector<int>> enemyCoordinates = enemyNear(board);
-    if (!enemyCoordinates.empty()) {
-        if (life < 5) {
-            return fleeRobot(enemyCoordinates);
-        } else {
-            return fightFirstTarget(enemyCoordinates);
-        }
+    vector<vector<int>> bonusCoordinates = objectNear(board, 'B');
+    vector<vector<int>> enemyCoordinates = objectNear(board, 'R');
+    if (!bonusCoordinates.empty()) {
+        return move(bonusCoordinates.front().front(),
+                    bonusCoordinates.front().back());    //goToBonus(bonusCoordinates);
     } else {
-        return goBackRight();
+        if (!enemyCoordinates.empty()) {
+            if (life < 5 && pow < 10) {
+                return fleeRobot(enemyCoordinates);
+            } else {
+                return fightFirstTarget(enemyCoordinates);
+            }
+        } else {
+            switch (getRandomNumberForDirection()) {
+                case 0 :
+                    return goUpLeft();
+                case 1 :
+                    return goBackLeft();
+                default:
+                    return goBackRight();
+            }
+        }
     }
-
-    return "wait";//fightFirstTarget(board);
 }
 
 string MonRobot::name() const {
@@ -77,19 +90,19 @@ string MonRobot::move(int xMove, int yMove) {
     return stringMove;
 }
 
-string MonRobot::goForward() {
+[[maybe_unused]] string MonRobot::goForward() {
     return move(0, 1);
 }
 
-string MonRobot::goBackward() {
+[[maybe_unused]] string MonRobot::goBackward() {
     return move(0, -1);
 }
 
-string MonRobot::goLeft() {
+[[maybe_unused]] string MonRobot::goLeft() {
     return move(-1, 0);
 }
 
-string MonRobot::goRight() {
+[[maybe_unused]] string MonRobot::goRight() {
     return move(1, 0);
 }
 
@@ -97,7 +110,7 @@ string MonRobot::goUpLeft() {
     return move(-1, 1);
 }
 
-string MonRobot::goUpRight() {
+[[maybe_unused]] string MonRobot::goUpRight() {
     return move(1, 1);
 }
 
@@ -114,22 +127,23 @@ string MonRobot::fightFirstTarget(const vector<vector<int>> &enemyCoordinates) {
 }
 
 
-vector<vector<int>> MonRobot::enemyNear(const vector<vector<char>> &board) {
-    //S'il y a un ennemi aux alentours du robot
-    vector<vector<int>> enemiesCoordinates;
+vector<vector<int>> MonRobot::objectNear(const vector<vector<char>> &board, char objectSymbol) {
+    vector<vector<int>> objectCoordinates;
+    //S'il y a un ennemi ou un bonus aux alentours du robot
     for (size_t y = 0; y < 5; y++) {
         for (size_t x = 0; x < 5; x++) {
-            if (board.at(y).at(x) == 'R') {
-                enemiesCoordinates.emplace_back(vector<int>{(int) (y - 2), (int) (x - 2)});
+            if (board.at(y).at(x) == objectSymbol) {
+                objectCoordinates.emplace_back(vector<int>{(int) (x - 2), (int) (y - 2)});
             }
         }
     }
-    return enemiesCoordinates;
+    return objectCoordinates;
 }
+
 
 vector<vector<char>> MonRobot::boardStringToVectors(const string &str) {
     if (Message(str).msg == MessageType::UpdateBoard) {
-        string strBoard = split(str, "d").back();
+        string strBoard = split(str, " ", 2).back();
         vector<vector<char>> board;
         for (unsigned i = 0; i < 25; i++) {
             if (i % 5 == 0) {
@@ -149,7 +163,7 @@ string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates
     vector<int> coordNearestRobot(2);
     int coordResult = 5; //need a number higher than 2 + 2
 
-    for (auto coord : enemyCoordinates) {
+    for (auto coord: enemyCoordinates) {
         int x = coord.front(), y = coord.back();
         if (x != 0 || y != 0) {
             if (abs(x) + abs(y) < coordResult) {
@@ -159,10 +173,13 @@ string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates
             }
         }
     }
-
-
     return move(coordNearestRobot.front(), coordNearestRobot.back());
-
 }
 
+int MonRobot::getRandomNumberForDirection() {
+    random_device rd;
+    mt19937 mt(rd());
+    uniform_int_distribution<int> dist(0, 5);
+    return dist(mt);
+}
 

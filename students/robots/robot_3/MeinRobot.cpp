@@ -103,8 +103,19 @@ void MeinRobot::gameEngineUpdate(std::vector<std::string> updates) {
 
     target -= lastMove;
     mapInfo.updateInformations(board);
-    bool targetExist = mapInfo.updateBonus(lastMove);
-    target = targetExist ? target : Point2D(0,0);
+    mapInfo.updateBonus(lastMove);
+
+    if(state != STATE_MACHINE::KILL)
+    {
+        for (const auto& i : mapInfo.getInRangeRobots()) {
+            if(target != i) continue;
+            target = Point2D(0,0);
+        }
+    }
+    //bool targetExist = true;
+
+
+    //target = targetExist ? target : Point2D(0,0);
     lastMove = Point2D(0,0);
     //UPDATE STATE
     updateStateMachine();
@@ -159,7 +170,12 @@ std::string MeinRobot::move(const Point2D &direction) {
     Point2D escapeMove = Point2D(dirNormalize.getY() ,dirNormalize.getX());
     escapeMove = escapeMove.getX() == escapeMove.getY() ? Point2D(escapeMove.getY(),0) : escapeMove;
     lastMove = isEnemyInTheWay ? escapeMove : dirNormalize;
+
+    if(state == STATE_MACHINE::KILL){
+        return "move " + dirNormalize.toString();
+    }
     return "move " + (isEnemyInTheWay ? escapeMove.toString() : dirNormalize.toString());
+
 
     //lastMove = dirNormalize;
     //return "move " + dirNormalize.toString();
@@ -181,6 +197,12 @@ void MeinRobot::updateStateMachine() {
             break;
         case STATE_MACHINE::RETRIEVE:
             calculateClosestBonus(mapInfo);
+
+            for (const auto& i : mapInfo.getInRangeRobots()) {
+                if(target != i) continue;
+                target = Point2D(0,0);
+            }
+
             if (target == Point2D(0, 0)) {
                 state = mapInfo.bonus.empty() ? STATE_MACHINE::SEARCH : STATE_MACHINE::RETRIEVE;
                 calculateClosestBonus(mapInfo);

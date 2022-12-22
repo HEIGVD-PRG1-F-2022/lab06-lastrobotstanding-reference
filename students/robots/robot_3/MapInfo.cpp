@@ -52,25 +52,38 @@ void MapInfo::updateBonusOnMap(const Point2D &enemyPosition) {
     bonus.erase(std::find(bonus.begin(), bonus.end(), enemyPosition), bonus.end());
 }
 
-bool MapInfo::updateBonus(const Point2D &move) {
+void MapInfo::updateBonus(const Point2D &move) {
     std::for_each(bonus.begin(), bonus.end(), [move](auto &item) { item -= move; });
 
-    bool underRobot = false;
-    bool pickByEnemy = false;
-
-    bonus.erase( std::remove_if( bonus.begin(), bonus.end(),
-    [this, &underRobot, &pickByEnemy](auto &item)
+    inRangeBonus.erase( std::remove_if( inRangeBonus.begin(), inRangeBonus.end(),
+    [this](auto &item)
     {
-        underRobot = item == Point2D(0, 0);
-        pickByEnemy = false;
+        bool underRobot = item == Point2D(0, 0);
+        bool pickByEnemy = false;
         for(auto i : inRangeRobots)
         {
-            Point2D relativPosition = Point2D(i.getX() - radiusCheck , i.getY() - radiusCheck);
+            Point2D relativPosition = Point2D(i.getX() - radiusCheck, i.getY() - radiusCheck);
+            if(relativPosition != item) continue;
+            pickByEnemy = true;
+        }
+        //bool pickByEnemy = std::find(inRangeRobots.begin(), inRangeRobots.end(), item) != inRangeRobots.end();
+        return underRobot || pickByEnemy;
+    } ), inRangeBonus.end() );
+
+    bonus.erase( std::remove_if( bonus.begin(), bonus.end(),
+    [this](auto &item)
+    {
+        bool underRobot = item == Point2D(0, 0);
+        bool pickByEnemy = false;
+        for(auto i : inRangeRobots)
+        {
+            Point2D relativPosition = Point2D(i.getX() - radiusCheck, i.getY() - radiusCheck);
             if(relativPosition != item) continue;
             pickByEnemy = true;
         }
         //bool pickByEnemy = std::find(inRangeRobots.begin(), inRangeRobots.end(), item) != inRangeRobots.end();
         return underRobot || pickByEnemy;
     } ), bonus.end() );
-    return !(underRobot || pickByEnemy);
+
+
 }

@@ -54,7 +54,6 @@ string SonnyRobot::action(vector<string> updates) {
 
     target = targetToLock();
     target -= getCenterMap();
-    target.y;
 
     ++counter;
 
@@ -71,22 +70,22 @@ string SonnyRobot::action(vector<string> updates) {
 
     if(BONUS){
         if (!robot){
-// << "go to Bonus";
+            cout << "go to Bonus";
         } else{
             if (posBonus - posSonny < posBonus - posRobot){
-// << "go to Bonus";
+                cout << "go to Bonus";
             } else if(energy > 5 + nbrRound){
-// << "ATTACK" << endl;
+                cout << "ATTACK" << endl;
             }else{
-// << "MOVE" << endl;
+                cout << "MOVE" << endl;
             }
         }
 
    if (robot){
        if(energy > 5 + nbrRound){
-// << "ATTACK" << endl;
+           cout << "ATTACK" << endl;
        }else{
-// << "MOVE" << endl;
+           cout << "MOVE" << endl;
        }
    }
 
@@ -103,6 +102,8 @@ void SonnyRobot::setConfig(size_t width, size_t height, unsigned int energy, uns
     this->mapHeight = height;
     this->energy = energy;
     this->power = power;
+
+    this->map= vector(mapHeight, vector<string>(mapWidth, ""));
 }
 
 string SonnyRobot::name() const {

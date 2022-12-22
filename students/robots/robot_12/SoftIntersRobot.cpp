@@ -1,16 +1,38 @@
-//
-// Created by bioan on 29.11.2022.
-//
-
 #include "SoftIntersRobot.h"
 
 using namespace std;
 
 string SoftIntersRobot::action(vector<string> updates) {
+    const string BOARD = "board ";
+    vector<vector<char>> infoBoard(5, vector<char>(5, ' '));
+    string updateBoard;
+    Direction dirMove(0, 0);
+    for (const auto &message: updates) {
+        updateBoard = message;
+        size_t pos = updateBoard.find(BOARD);
+        if (pos != string::npos) {
+            updateBoard.erase(pos, BOARD.length());
+        }
+        for (size_t itString = 0; itString < updateBoard.length(); itString++) {
+            infoBoard.at(itString / 5).at(itString % 5) = updateBoard.at(itString);
+        }
+    }
+    if (hp < 10){
+        for (const auto &row : infoBoard){
+            for (const auto &cell : row){
+                if (cell == 'R'){
+                    dirMove = Direction(0,1);
+                } else if (cell == 'B'){
+                    dirMove = Direction(1, 0);
+                }
+            }
+        }
+    } else {
+        dirMove = Direction(1, 1);
+    }
 
-    // return Message::actionWait();
-    return Message::actionMove(Direction(0, 1));
-    // return Message::actionAttack(Direction(-1, 1));
+
+    return Message::actionMove(dirMove);
 }
 
 string SoftIntersRobot::name() const {

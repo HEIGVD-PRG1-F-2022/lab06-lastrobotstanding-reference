@@ -6,8 +6,6 @@ Date creation   : 29.11.2022
 
 Description     : LastRobotStanding
 
-Remarque(s)     : <a completer>
-
 -----------------------------------------------------------------------------------
 */
 
@@ -52,13 +50,13 @@ private:
      * largeur du terrain de jeu
      * variable non-utilisée car nous n'avons pas fait de radar
      */
-    [[maybe_unused]] size_t dx;
+    //[[maybe_unused]] size_t dx;
 
     /**
      * hauteur du terrain de jeu
      * variable non-utilisée car nous n'avons pas fait de radar
      */
-    [[maybe_unused]] size_t dy;
+    //[[maybe_unused]] size_t dy;
 
     /**
      * puissance d'attaque du robot
@@ -136,7 +134,11 @@ private:
      */
     static std::string fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates);
 
-    int getRandomNumber(int max);
+    /**
+     * fonction qui nous donne un nombre aléatoire entre 1 et 5 (l'aléatoire est recopié depuis la classe Jeu)
+     * @return valeur aléatoire
+     */
+    static int getRandomNumberForDirection();
 
 };
 
