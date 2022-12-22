@@ -127,14 +127,16 @@ void Game::checkBonus() {
     }
 }
 
-void Game::sendUpdates() {
+void Game::sendUpdates(bool debug) {
     vector<Position> boniPos(boni.size());
     transform(boni.begin(), boni.end(), boniPos.begin(), [](Bonus b) -> Position { return b.pos; });
     auto updateBoards = Message::updateBoard(positions, boniPos);
     for (auto &robot: robots) {
         if (robot.isDead()) { continue; }
         robot.actionRadar(radar);
+        debug && cout << "Sending updates to " << robot.getName() << endl;
         robot.sendUpdate(updateBoards.front());
+        debug && cout << "Done with " << robot.getName() << endl;
         updateBoards.erase(updateBoards.begin());
     }
 }
@@ -197,7 +199,7 @@ void Game::addRobot(Robot *r) {
     waitList.push_back(r);
 }
 
-RobotState *Game::play(bool show) {
+RobotState *Game::play(bool show, bool debug) {
     if (show) {
         Display::init();
         Display::DString().clearScreen().cursorVisible(false).print();
@@ -213,11 +215,15 @@ RobotState *Game::play(bool show) {
         if (show) {
             if (largestRobotAlive() < largestAlive) { Display::DString().clearScreen().print(); }
             display();
-            this_thread::sleep_for(50ms / pow(log(round + 2), 2));
+            this_thread::sleep_for(1000ms / pow(log(round + 2), 2));
         }
-        sendUpdates();
+        sendUpdates(debug);
         if (standard) { idle_limit = unsigned(100 * robotsAlive()); }
     } while (robotsAlive() > 1 && ++idle < idle_limit && ++round < MAX_ROUNDS);
+
+    if (debug) {
+        for (const auto &robot: robots) { cout << robot.getName() << ": " << robot.getDeathCause() << endl; }
+    }
 
     if (robotsAlive() == 1) {
         return &*find_if(robots.begin(), robots.end(), [](const RobotState &r) -> bool { return !r.isDead(); });

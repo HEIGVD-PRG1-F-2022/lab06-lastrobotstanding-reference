@@ -46,7 +46,7 @@ class Game {
 
     void checkBonus();
 
-    void sendUpdates();
+    void sendUpdates(bool debug);
 
     void displayRobotsStats(size_t x, size_t y);
 
@@ -57,7 +57,7 @@ public:
 
     void addRobot(Robot *r);
 
-    RobotState *play(bool show = true);
+    RobotState *play(bool show = true, bool debug = false);
 };
 
 

@@ -43,14 +43,21 @@ struct cfg {
         standard = parser.cmdOptionExists("--standard");
         rounds = parser.cmdOptionExists("--rounds") ? stoul(parser.getCmdOption("--rounds")) : 1;
         smart = parser.cmdOptionExists("--smart") ? YES : NO;
+        students = !parser.cmdOptionExists("--nostudents");
+        debug = parser.cmdOptionExists("--debug");
     }
     bool standard;
+    bool students;
+    bool debug;
     unsigned long rounds;
     PresenceSmart smart;
 };
 
 Game setupGame(cfg c) {
     Game G(c.standard);
+    G.addRobot(new RobotDiagonal());
+    G.addRobot(new RobotDiagonal());
+    G.addRobot(new RobotDiagonal());
     G.addRobot(new RobotDiagonal());
     bool addSmart = c.smart == YES;
     if (c.smart == RANDOM) {
@@ -60,7 +67,9 @@ Game setupGame(cfg c) {
     }
     if (addSmart) { G.addRobot(new RobotSmart()); }
     G.addRobot(new RobotWait());
-    for (const auto &robot: students()) { G.addRobot(robot); }
+    if (c.students) {
+        for (const auto &robot: students()) { G.addRobot(robot); }
+    }
     return G;
 }
 
@@ -78,7 +87,7 @@ void gameSilent(cfg c) {
 
     for (size_t round = 0; round < c.rounds; round++) {
         Game G = setupGame(c);
-        auto winner = G.play(false);
+        auto winner = G.play(false, c.debug);
         if (winner == nullptr) {
             draws++;
         } else {
@@ -111,7 +120,7 @@ void game(cfg c) {
         c.smart = RANDOM;
     }
     Game G = setupGame(c);
-    auto winner = G.play(true);
+    auto winner = G.play(true, c.debug);
     cout << Display::DString(Display::Color::YELLOW);
     if (winner == nullptr) {
         cout << "The game ended in a draw" << endl;

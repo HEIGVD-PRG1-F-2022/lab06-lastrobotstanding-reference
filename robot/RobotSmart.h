@@ -6,6 +6,7 @@
 #define REFERENCEGAME_ROBOTSMART_H
 
 #include <iostream>
+#include <vector>
 #include <librobots/Direction.h>
 #include <librobots/Robot.h>
 
@@ -15,9 +16,11 @@ class RobotSmart : public Robot {
     unsigned nearestCounter = 0;
     Direction nearestDirection;
     unsigned lastAttack = 0;
-//    vector<vector<Direction>> traceRobots{};
+    std::vector<std::vector<Direction>> traceRobots{};
 
     void updateNearest(Direction dir, bool bonus = false);
+
+    std::string fleeFrom(Direction dir);
 
 public:
     RobotSmart() = default;

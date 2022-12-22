@@ -5,12 +5,15 @@
 #include <librobots/Direction.h>
 #include <librobots/Message.h>
 #include <librobots/Robot.h>
+#include <random>
 
 using namespace std;
 
+constexpr unsigned START_TRACE_ROBOT = 20;
+
 void RobotSmart::updateNearest(Direction dir, bool bonus) {
     double distanceNearest = nearestDirection.mag(), distance = dir.mag();
-    if (distance <= 0.5) { throw runtime_error("Nearest with distance 0"); }
+    if (distance <= 0.5) { return; }
     if (distance + nearestCounter < distanceNearest || nearestCounter == 0 || bonus) {
         //            cout << "Updating distance with " << dir << endl;
         nearestDirection = dir;
@@ -25,7 +28,19 @@ void RobotSmart::setConfig(size_t init_width, size_t init_height, unsigned init_
     power = init_power;
 }
 
-std::string RobotSmart::action(std::vector<std::string> updates) {
+string RobotSmart::fleeFrom(Direction dir) {
+    random_device rd;
+    uniform_int_distribution<double> val(-M_PI / 2, M_PI / 2);
+    return Message::actionMove(dir.neg().rotate(val(rd)));
+}
+
+void normalize(vector<Direction> &list) {
+    sort(list.begin(), list.end(), [](Direction a, Direction b) { return a.mag() < b.mag(); });
+    list.erase(unique(list.begin(), list.end()), list.end());
+    while (!list.empty() && list.front().mag() == 0) { list.erase(list.begin()); }
+}
+
+string RobotSmart::action(std::vector<std::string> updates) {
     vector<Direction> robots, boni;
     ++lastAttack;
     //        for (const auto &update: updates){
@@ -57,38 +72,51 @@ std::string RobotSmart::action(std::vector<std::string> updates) {
         }
     }
 
-    std::sort(robots.begin(), robots.end(), [](Direction a, Direction b) { return a.mag() < b.mag(); });
-    robots.erase(std::unique(robots.begin(), robots.end()), robots.end());
-    if (robots.size() > 0 && robots.front().mag() == 0) { robots.erase(robots.begin()); }
-    std::sort(boni.begin(), boni.end(), [](Direction a, Direction b) { return a.mag() < b.mag(); });
-    boni.erase(std::unique(boni.begin(), boni.end()), boni.end());
+    normalize(robots);
+    normalize(boni);
 
     if (!boni.empty()) { updateNearest(boni.at(0), true); }
     if (!robots.empty()) {
-        if (energy < 10) {
-            //                cout << "Going away from " << robots.at(0) << endl;
-            lastAttack = 0;
-            return Message::actionMove(robots.at(0).neg().rotate(M_PI / 2));
-        }
         for (auto robot: robots) {
             if (robot.mag() < 2) {
                 lastAttack = 0;
-                return Message::actionMove(robot.neg().rotate(M_PI / 2));
+                return fleeFrom(robot);
             } else if (robot.mag() <= 3) {
-                lastAttack = 0;
-                return Message::actionAttack(robot);
+                if (energy >= 10) {
+                    lastAttack = 0;
+                    return Message::actionAttack(robot);
+                } else {
+                    lastAttack = 0;
+                    return fleeFrom(robot);
+                }
             }
         }
-        if (nearestCounter == 0) {
-//            if (lastAttack >= 50) {
-//                if (lastAttack == 50) {
-//                    traceRobots.clear();
-//                } else if (lastAttack < 60) {
-//                    traceRobots.push_back(robots);
-//                    return Message::actionRadar();
-//                }
-//            }
-            updateNearest(robots.at(0));
+        if (nearestCounter == 0) { updateNearest(robots.at(0)); }
+    }
+
+    if (lastAttack >= START_TRACE_ROBOT && energy > 10) {
+        switch (lastAttack) {
+            case START_TRACE_ROBOT:
+                traceRobots.clear();
+                return Message::actionRadar();
+            case START_TRACE_ROBOT + 1:
+                traceRobots.push_back(robots);
+                return Message::actionRadar();
+            case START_TRACE_ROBOT + 2:
+                traceRobots.push_back(robots);
+                {
+                    Direction pos = traceRobots.at(1).at(0);
+                    Direction move = pos - traceRobots.at(0).at(0);
+                    unsigned steps = 0;
+                    while (pos.mag() > double(steps++)) {
+                        pos += move;
+                        pos = Direction(int((size_t(pos.getdX()) + width) % width), int((size_t(pos.getdY()) + height) % height));
+                    }
+                    updateNearest(pos);
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -105,4 +133,4 @@ std::string RobotSmart::action(std::vector<std::string> updates) {
     }
 };
 
-[[nodiscard]] std::string RobotSmart::name() const { return "Smart one"; }
+[[nodiscard]] string RobotSmart::name() const { return "Smart one"; }
