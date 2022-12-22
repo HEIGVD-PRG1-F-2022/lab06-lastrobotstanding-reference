@@ -136,6 +136,7 @@ private:
      */
     static std::string fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates);
 
+    int getRandomNumber(int max);
 
 };
 

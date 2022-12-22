@@ -116,15 +116,14 @@ void MonRobotGPKD_v2::powerUpdate(const string &s) {
 }
 
 void MonRobotGPKD_v2::bonusUpdate(const string &s) {
-    vector<string> command = split(s, " ", 2);
-    vector<string> cmdBonus = split(command.at(1), ",", 2);
+    vector<string> cmdBonus = split(s, ",", 2);
 
     bonus.emplace_back(stoi(cmdBonus.at(0)), stoi(cmdBonus.at(1))) ;
 }
 
 void MonRobotGPKD_v2::robot(const string &s) {
-    vector<string> command = split(s, " ", 2);
-    vector<string> cmdRobot = split(command.at(1), ",", 2);
+//    vector<string> command = split(s, " ", 2);
+    vector<string> cmdRobot = split(s, ",", 2);
 
     radarR.emplace_back(stoi(cmdRobot.at(0)), stoi(cmdRobot.at(1))) ;
 }

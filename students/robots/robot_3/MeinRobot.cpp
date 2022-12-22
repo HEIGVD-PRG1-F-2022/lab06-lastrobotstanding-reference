@@ -103,7 +103,8 @@ void MeinRobot::gameEngineUpdate(std::vector<std::string> updates) {
 
     target -= lastMove;
     mapInfo.updateInformations(board);
-    mapInfo.updateBonus(lastMove);
+    bool targetExist = mapInfo.updateBonus(lastMove);
+    target = targetExist ? target : Point2D(0,0);
     lastMove = Point2D(0,0);
     //UPDATE STATE
     updateStateMachine();
@@ -203,6 +204,7 @@ void MeinRobot::updateStateMachine() {
 //===================================================================================================
 
 void MeinRobot::calculateClosestBonus(const MapInfo& info) {
+
     if(info.bonus.empty() && info.getInRangeBonus().empty())
     {
         target = Point2D(0,0);

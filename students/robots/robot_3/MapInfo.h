@@ -47,7 +47,7 @@ public:
     void reset();
     void registerInRangeObjects(const std::vector<std::vector<std::string>>& board);
     void updateBonusOnMap(const Point2D &enemyPosition);
-    void updateBonus(const Point2D &lastMove);
+    bool updateBonus(const Point2D &lastMove);
 };
 
 #endif//LASTROBOTSTANDING_MAPINFO_H

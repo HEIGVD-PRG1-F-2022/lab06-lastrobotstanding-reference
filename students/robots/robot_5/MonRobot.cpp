@@ -13,6 +13,7 @@ Remarque(s)     : <a completer>
 
 #include "MonRobot.h"
 #include "librobots/Message.h"
+#include <random>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ MonRobot::MonRobot() {
     dy = 0;
     life = 0;
     pow = 0;
-    str_name = "Dave et Gui";
+    str_name = "Davillaume PRIME";
 }
 
 void MonRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
@@ -54,7 +55,7 @@ string MonRobot::action(vector<string> updates) {
                 return fightFirstTarget(enemyCoordinates);
             }
         } else {
-            switch (rand() % 5) {
+            switch (getRandomNumber(5)) {
                 case 0 :
                     return goUpLeft();
                 case 1 :
@@ -87,19 +88,19 @@ string MonRobot::move(int xMove, int yMove) {
     return stringMove;
 }
 
-string MonRobot::goForward() {
+[[maybe_unused]] string MonRobot::goForward() {
     return move(0, 1);
 }
 
-string MonRobot::goBackward() {
+[[maybe_unused]] string MonRobot::goBackward() {
     return move(0, -1);
 }
 
-string MonRobot::goLeft() {
+[[maybe_unused]] string MonRobot::goLeft() {
     return move(-1, 0);
 }
 
-string MonRobot::goRight() {
+[[maybe_unused]] string MonRobot::goRight() {
     return move(1, 0);
 }
 
@@ -107,7 +108,7 @@ string MonRobot::goUpLeft() {
     return move(-1, 1);
 }
 
-string MonRobot::goUpRight() {
+[[maybe_unused]] string MonRobot::goUpRight() {
     return move(1, 1);
 }
 
@@ -171,5 +172,12 @@ string MonRobot::fleeRobot(const std::vector<std::vector<int>> &enemyCoordinates
         }
     }
     return move(coordNearestRobot.front(), coordNearestRobot.back());
+}
+
+int MonRobot::getRandomNumber(int max) {
+    random_device rd;
+    mt19937 mt(rd());
+    uniform_int_distribution<int> dist(0, max);
+    return dist(mt);
 }
 

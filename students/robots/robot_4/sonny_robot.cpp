@@ -71,22 +71,22 @@ string SonnyRobot::action(vector<string> updates) {
 
     if(BONUS){
         if (!robot){
-            cout << "go to Bonus";
+// << "go to Bonus";
         } else{
             if (posBonus - posSonny < posBonus - posRobot){
-                cout << "go to Bonus";
+// << "go to Bonus";
             } else if(energy > 5 + nbrRound){
-                cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
             }else{
-                cout << "MOVE" << endl;
+// << "MOVE" << endl;
             }
         }
 
    if (robot){
        if(energy > 5 + nbrRound){
-           cout << "ATTACK" << endl;
+// << "ATTACK" << endl;
        }else{
-           cout << "MOVE" << endl;
+// << "MOVE" << endl;
        }
    }
 
