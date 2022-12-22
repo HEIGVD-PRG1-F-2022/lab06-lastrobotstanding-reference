@@ -57,6 +57,17 @@ Point operator+(Point lhs, const Point &rhs) {
     return lhs;
 }
 
+Point &Point::operator-=(const Point &rhs) {
+    this->x -= rhs.x;
+    this->y -= rhs.y;
+    return *this;
+}
+
+Point operator-(Point lhs, const Point &rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+
 Point &Point::wrap(Point &coords, int min, int max) {
     int wrapSize = max - min + 1;
     int valueX = coords.x, valueY = coords.y;
@@ -74,8 +85,14 @@ Point &Point::wrap(Point &coords, int min, int max) {
     return coords;
 }
 
-int Point::distance(Point coords) const{
+int Point::distance(Point coords) const {
     return (int) sqrt(pow(this->x - coords.x, 2) + pow(this->y - coords.y, 2));
 }
+
+Point Point::normalize() {
+    return {this->x <= -1 ? -1 : this->x >= 1 ? 1 : this->x, this->y <= -1 ? -1 : this->y >= 1 ? 1 : this->y};
+}
+
+
 
 

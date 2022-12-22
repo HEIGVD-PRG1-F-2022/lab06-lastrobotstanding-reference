@@ -16,16 +16,15 @@
 
 class MyRobot : public Robot {
     size_t width = 0, height = 0, energy = 0, power = 0;
-    Direction target = Direction(0, 0);
+    Direction lastRobot = Direction(0, 0);
     int countRound;
+    std::vector<Direction> boniList;
+    std::vector<Direction> robotsList;
+    size_t lastPower = 0;
 public:
-    Direction setTarget(int x, int y){
+    void setMemoryList(std::vector<Direction>, std::vector<Direction>&);
+    void updatePosition(std::vector<Direction>);
 
-        return target = Direction(x, y);
-    }
-    Direction getTarget(){
-        return target;
-    }
     void setConfig(size_t width_init, size_t height_init, unsigned energy_init,
                    unsigned power_init) override;
 
@@ -34,13 +33,15 @@ public:
     [[nodiscard]] std::string name() const override;
 
     bool isDuplicate(Direction, std::vector<Direction>);
+    bool isMissing(Direction, std::vector<Direction>);
 
     Direction getClosest(std::vector<Direction>);
 
-    std::string moveTo(Direction target);
+    Direction getRandomDirection();
 
-    // all good :)
-    std::string wander();
+    std::string moveTowards(Direction target);
+
+    int getIndex(std::vector<double> v, double K);
 };
 
 

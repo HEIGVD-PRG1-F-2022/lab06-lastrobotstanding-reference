@@ -20,9 +20,9 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 using namespace std;
 
-string SonnyRobot::action(vector <string> updates) {
+string SonnyRobot::action(vector<string> updates) {
     for (const string &update: updates) {
-        vector <string> actionParameters = split(update, " ", 2);
+        vector<string> actionParameters = split(update, " ", 2);
 
         string action = actionParameters.at(0);
         string parameters;
@@ -35,20 +35,18 @@ string SonnyRobot::action(vector <string> updates) {
                 internalMap = fromStringToMap(parameters);
                 break;
             case Action::Name::DAMAGE:
-                vector <string> damageInfo = split(parameters, ",", 3);
+                vector<string> damageInfo = split(parameters, ",", 3);
                 attacker = Point(damageInfo.at(0), damageInfo.at(1));
-                energy -= (unsigned)stoi(damageInfo.at(2));
+                energy -= (unsigned) stoi(damageInfo.at(2));
                 break;
         }
     }
 
     target = targetToLock();
 
-    Point normalize = Point::wrap(target, -1, 1);
+    target -= getCenterMap();
 
-    normalize.y *= -1;
-
-    return "move " + (string)normalize;
+    return "move " + (string) target.normalize();
 }
 
 /*
@@ -117,15 +115,15 @@ Point SonnyRobot::targetToLock() {
     return shortestPoint;
 }
 
-vector <vector<string>> SonnyRobot::fromStringToMap(const std::string map) {
-    vector <vector<string>> mapVector;
+vector<vector<string>> SonnyRobot::fromStringToMap(const std::string map) {
+    vector<vector<string>> mapVector;
 
     for (size_t y = 0; y < FIELD_OF_VIEW; ++y) {
-        vector <string> line;
+        vector<string> line;
         for (size_t x = 0; x < FIELD_OF_VIEW; ++x) {
             int offset = y * (FIELD_OF_VIEW);
             string car = map.substr(x + offset, 1);
-            line.push_back(car);
+            line.push_back(car == " " ? "" : car);
         }
         mapVector.push_back(line);
     }

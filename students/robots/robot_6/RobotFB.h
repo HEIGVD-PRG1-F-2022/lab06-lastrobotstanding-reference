@@ -12,7 +12,6 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 -----------------------------------------------------------------------------------
  */
 
-//TODO : surcharge opérateur += et -= (pour modifier energy et power)
 
 #ifndef REFACTOR_ROBOTFB_H
 #define REFACTOR_ROBOTFB_H

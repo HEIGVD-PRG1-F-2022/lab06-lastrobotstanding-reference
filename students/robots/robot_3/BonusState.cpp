@@ -16,7 +16,13 @@
 //1) FIND CURRENT TARGET if fale => Change to search
 Point2D BonusState::updateState(MapInfo &info) {
     //Check In range
-    Point2D target;
+    //std::cout << info.bonus.size() << std::endl;
+    Point2D target = Point2D(0,0);
+    if(info.bonus.empty() && info.getInRangeBonus().empty())
+    {
+        return target;
+    }
+
     if (info.getInRangeBonus().empty()){ //CHECK spawned bonus if none are in field of view
         double shortestDistance = std::numeric_limits<double>::max();
         for (const auto &outVisionCoord: info.bonus) {

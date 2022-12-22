@@ -7,7 +7,7 @@ Date creation   : 29.11.2022
 Description     : Stratégie du robot: s'il y a un robot à proximité il l'attaque
                   sinon il attend
 
-Remarque(s)     :TODO: ne pas devenir fou (impossible)
+Remarque(s)     :
 
 Compilateur     : Mingw-w64 g++ 11.2.0
 -----------------------------------------------------------------------------------

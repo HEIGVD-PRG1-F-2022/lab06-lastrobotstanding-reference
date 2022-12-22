@@ -55,6 +55,7 @@ enum class STATE_MACHINE {
 class MeinRobot : public Robot {
 private:
     STATE_MACHINE state = STATE_MACHINE::SEARCH;
+    Point2D lastMove = Point2D();
 
     size_t width = 0;
     size_t height = 0;
@@ -67,9 +68,7 @@ private:
     Point2D target = Point2D(0, 0);
 
     MapInfo mapInfo;
-    BonusState bonusState;
-
-    //std::vector<Point2D> bonus;
+    //BonusState bonusState;
 
     //board : bound to field of view 5X5
     std::vector<std::vector<std::string>> board;
@@ -84,6 +83,8 @@ private:
     void addRobot(const std::string &info);
 
     void gameEngineUpdate(std::vector<std::string> updates);
+    void updateStateMachine(int numEnemyAliveThisFrame);
+    void calculateClosestBonus(const MapInfo& info);
     void resetValues();
 
     std::string move(const Point2D &direction);
@@ -100,6 +101,8 @@ public:
 
     // Retourne le nom de ce robot.
     [[nodiscard]] std::string name() const override;
+
+
 };
 
 

@@ -8,7 +8,7 @@ Description     :Startégie du robot: dès qu'il détecte un bonus assez proche 
                  Sinon si il y a un robot à proximité et qu'il lui reste assez de pv va se battre sinon fui
                  Si rien il n'y a ni bonus ni robot à proximité, avance en diagonal.
 
-Remarque(s)     :todo: le robot ne vas pas vers un bonus lorsqu'il en détecte un
+Remarque(s)     : TODO: faire le read me
 
 Compilateur     : Mingw-w64 g++ 11.2.0
 -----------------------------------------------------------------------------------
@@ -20,8 +20,14 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 RobotFB_diag::RobotFB_diag() = default;
 
+int calculDistance(int dX, int dY){
+    //distance entre le bonus et notre robot
+    int distance = (int)sqrt((pow(dX,2)+ pow(dY,2)));
+    return distance;
+}
 
-void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, bool &flagR, int &posBX, int &posBY, bool &flagB,std::vector<std::vector<std::string>> &alentour){
+
+void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR, int &posBX, int &posBY, bool &flagB,std::vector<std::vector<std::string>> &alentour){
     for(std::string lignes : updates){
 
         //permet de récupérer la string jusqu'à l'espace (donc l'action à effectuer)
@@ -44,14 +50,18 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
                         alentour.at(i).at(j) = lignes.at(entite);
 
                         if (lignes.at(entite) == 'B') {
+//<<"Bonus A détecté"<<std::endl;
                             flagB = true;
                             posBX = (int)i - 2;//cast en int pour réduire les warnings
                             posBY = (int)j - 2;
                         }  //retiens la position du 1er robot repérer, utiliser pour stratégie d'attaque
-                        else if (lignes.at(entite) == 'R' && !flagR) {
-                            flagR = true;
+                        else if (lignes.at(entite) == 'R' && !flagR) {//si il y a un robot autour de nous
+                            flagR = 1;//dis qu'il y a un robot avec un danger bas car attaque x1
                             posRX = (int)i - 2;//cast en int pour réduire les warnings
                             posRY = (int)j - 2;
+                            if((i<=3&&i>=1) || (j<=3&&j>=1) ){ //si le robot est juste à coté de nous
+                                flagR = 2;//dis qu'il y a un robot avec un danger haut bas car attaque x2
+                            }
                         }
 
 
@@ -65,9 +75,10 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 
 
         }
-        else if(effet == "damage"){//éventuel stratégie de contre attaque
+        else if(effet == "damage"){
 
         }
+
         else if(effet == "bonus"){
 
             std::string BonusX = lignes.substr(0,lignes.find_first_of(','));
@@ -79,7 +90,7 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 
 
             //distance entre le bonus et notre robot
-            int distance = (int)sqrt((pow(dX,2)+ pow(dY,2)));
+            int distance = calculDistance(dX,dY);
 
 
             //retient la distance du bonus le plus proche
@@ -97,6 +108,7 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
             }
 
             if (distanceMin < 15){//si le bonus est assez proche
+//<<"Bonus B détecté"<<std::endl;
                 flagB = true;
             }
 
@@ -107,11 +119,11 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
 }
 
 //return action à effectuer (attaquer, bouger, attendre)
-std::string realisationAction(const bool &flagR, const int &posRX, const int &posRY, int &posBX, int &posBY, const bool &flagB, size_t energy){
+std::string realisationAction(const int &flagR, const int &posRX, const int &posRY, int &posBX, int &posBY, const bool &flagB){
     int dX,dY;
     std::string retour;
 
-    if(flagB){//si il y a un bonus détecter et qu'il n'est pas trop loin, va le prendre
+    if( flagR != 2 && flagB){//si il y a un bonus détecter et qu'il n'est pas trop loin et qu'il n'y a pas de menace importante d'attaque -> va prendre le bonus
         //sens déplacement sur axe Y
         if(posBY > 0){//si le bonus est en dessus, monte
             dY = 1;
@@ -120,7 +132,7 @@ std::string realisationAction(const bool &flagR, const int &posRX, const int &po
         }else{//sinon ne se déplace pas sur axe Y
             dY = 0;
         }
-
+        posBY--;
 
         //sens déplacement sur axe X, idem que pour l'axe Y
         if(posBX > 0){
@@ -130,18 +142,14 @@ std::string realisationAction(const bool &flagR, const int &posRX, const int &po
         }else{
             dX = 0;
         }
-
+        posBX--;
 
         retour = "move " + std::to_string(dX) + "," + std::to_string(dY);
     }
     else if (flagR) {//si il y a un robot
-        if(energy>5){//on l'attaque si on a assez d'énergie
-            retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
-        }else{//sinon on fuit
-            retour = "move " + std::to_string(-posRX) + "," + std::to_string(-posRY);
-        }
-
-    }else{//pas de bonus ni de robot -> avance en diagonal
+        retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
+    }
+    else{//pas de bonus ni de robot -> avance en diagonal
         retour = "move 1,1";
     }
 
@@ -150,16 +158,15 @@ std::string realisationAction(const bool &flagR, const int &posRX, const int &po
 }
 
 std::string RobotFB_diag::action(std::vector<std::string> updates){
-    bool flagR = false;
+    int flagR = 0;
     int posRX = 0, posRY = 0;
-    bool flagB = false;
 
 
     //traite les action reçu dans l'update
     traitementAction(updates, posRX, posRY, flagR,posBX, posBY, flagB, alentour);
 
     //"décide" de l'action à effectuer
-    std::string action = realisationAction(flagR,posRX,posRY,posBX,posBY,flagB,energy);
+    std::string action = realisationAction(flagR,posRX,posRY,posBX,posBY,flagB);
 
     return action;
 }
@@ -168,3 +175,6 @@ std::string RobotFB_diag::name() const {
     std::string nom = "RobotFB diagonal";
     return nom;
 }
+
+
+

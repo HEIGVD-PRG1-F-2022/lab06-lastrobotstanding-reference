@@ -19,6 +19,7 @@ Compiler        : Mingw-w64 g++ 11.2.0
 
 class Point {
     friend Point operator+(Point lhs, const Point &rhs);
+    friend Point operator-(Point lhs, const Point &rhs);
 public:
     int x, y;
 
@@ -29,11 +30,15 @@ public:
 
     explicit operator std::string() const;
 
+    Point normalize();
+
     static Point fromStrToPoint(const std::string& coords, const std::string& sep = ",");
 
     bool operator == (Point coords) const;
 
     Point& operator += (const Point& rhs);
+
+    Point& operator -= (const Point& rhs);
 
     static Point& wrap(Point &coords, int min, int max);
 

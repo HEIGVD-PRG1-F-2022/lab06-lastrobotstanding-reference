@@ -18,6 +18,8 @@
 class MyRobot1: public Robot {
 private:
     size_t width = 0, height = 0, energy = 0, power = 0;
+    unsigned roundCounter = 0;
+    Direction dir = Direction(-1, -1);
 public:
     // Une étape dans le jeu: les ‘updates’ sont des informations sur
     // l’environnement du robot. Le robot retourne un ou plusieurs string
@@ -27,6 +29,8 @@ public:
     void setConfig(size_t width_init, size_t height_init, unsigned int energy_init, unsigned int power_init) override;
 
     [[nodiscard]] std::string name() const override;
+
+    void changeDirection(bool waitAllowed = true);
 };
 
 

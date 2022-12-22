@@ -101,39 +101,17 @@ void MeinRobot::gameEngineUpdate(std::vector<std::string> updates) {
                 break;
         }
     }
-
+    mapInfo.updateInformations(board);
+    mapInfo.updateBonusOnMap(lastMove);
+    lastMove = Point2D();
     //UPDATE STATE
-    switch (state) {
-        case STATE_MACHINE::SEARCH:
-            numEnemyAlive = numEnemyAliveThisFrame;
-            if (mapInfo.bonus.empty()) {
-                state = numEnemyAlive == 1 ? STATE_MACHINE::KILL : STATE_MACHINE::SEARCH;
-                target = enemyTarget;
-            } else {
-                state = STATE_MACHINE::RETRIEVE;
-            }
-            break;
-        case STATE_MACHINE::RETRIEVE:
-            if (target == Point2D(0, 0)) {
-                state = mapInfo.bonus.empty() ? STATE_MACHINE::SEARCH : STATE_MACHINE::RETRIEVE;
-            }
-            break;
-        case STATE_MACHINE::KILL:
-            if (target == Point2D(0, 0) && mapInfo.getInRangeRobots().empty()) {
-                if(mapInfo.getInRangeRobots().empty()){
-                    state = STATE_MACHINE::SEARCH;
-                }
-                else{
-                    target = mapInfo.getInRangeRobots().front();
-                }
-            }
-            break;
-    }
+    updateStateMachine(numEnemyAliveThisFrame);
 }
+
 
 std::string MeinRobot::action(std::vector<std::string> updates) {
     gameEngineUpdate(updates);
-    mapInfo.updateInformations();
+
     std::string action = strategy();
     resetValues();
     return action;
@@ -151,7 +129,7 @@ void MeinRobot::setConfig(size_t width, size_t height, unsigned int energy, unsi
 
     state = STATE_MACHINE::SEARCH;
     mapInfo = MapInfo(width, height, SEARCH_RADIUS);
-    bonusState = BonusState();
+    //bonusState = BonusState();
 
     const std::string baseVal = " ";
     board.resize(SEARCH_WIDTH);
@@ -163,38 +141,104 @@ void MeinRobot::setConfig(size_t width, size_t height, unsigned int energy, unsi
 
 void MeinRobot::resetValues() {
     aggressors.clear();
-
     for (auto& i : board) {
         std::fill(i.begin(), i.end()," ");
     }
 }
 
+//===================================================================================================
+// SECTION : MOVE
+//===================================================================================================
+
 std::string MeinRobot::move(const Point2D &direction) {
     Point2D dirNormalize = direction.normalize();
-    bool isEnemyInTheWay = board.at(dirNormalize.getY() + SEARCH_RADIUS).at(dirNormalize.getX()+ SEARCH_RADIUS) == "R";
-
+    bool isEnemyInTheWay = board.at(dirNormalize.getY() + SEARCH_RADIUS).at(dirNormalize.getX() + SEARCH_RADIUS) == "R";
+/*
     Point2D escapeMove = Point2D(dirNormalize.getY() ,dirNormalize.getX());
-    if(escapeMove.getX() == escapeMove.getY())
-    {
-        escapeMove = Point2D(escapeMove.getX(),0);
-    }
-
-    mapInfo.setLastMove(isEnemyInTheWay ? escapeMove : dirNormalize);
+    escapeMove = escapeMove.getX() == escapeMove.getY() ? Point2D(escapeMove.getY(),0) : escapeMove;
+    lastMove = isEnemyInTheWay ? escapeMove : dirNormalize;
     return "move " + (isEnemyInTheWay ? escapeMove.toString() : dirNormalize.toString());
-
-    //mapInfo.setLastMove(isEnemyInTheWay ? Point2D() : dirNormalize);
-    //return (isEnemyInTheWay ? "attack " : "move ") + dirNormalize.toString();
+*/
+    return "move " + dirNormalize.toString();
 }
 
 //===================================================================================================
 // SECTION : STATE MACHINE
 //===================================================================================================
+void MeinRobot::updateStateMachine(int numEnemyAliveThisFrame) {
+    switch (state) {
+        case STATE_MACHINE::SEARCH:
+            numEnemyAlive = numEnemyAliveThisFrame;
+            if (mapInfo.bonus.empty()) {
+                state = numEnemyAlive == 1 ? STATE_MACHINE::KILL : STATE_MACHINE::SEARCH;
+                target = enemyTarget;
+            } else {
+                state = STATE_MACHINE::RETRIEVE;
+            }
+            break;
+        case STATE_MACHINE::RETRIEVE:
+            calculateClosestBonus(mapInfo);
+            if(target.mag() < 2 && mapInfo.getInRangeBonus().empty())
+            {
+
+            }
+            if (target == Point2D(0, 0)) {
+                state = mapInfo.bonus.empty() ? STATE_MACHINE::SEARCH : STATE_MACHINE::RETRIEVE;
+            }
+            break;
+        case STATE_MACHINE::KILL:
+            if (target == Point2D(0, 0) && mapInfo.getInRangeRobots().empty()) {
+                if(mapInfo.getInRangeRobots().empty()){
+                    state = STATE_MACHINE::SEARCH;
+                }
+                else{
+                    target = mapInfo.getInRangeRobots().front();
+                }
+            }
+            break;
+    }
+}
+
+//===================================================================================================
+// SECTION : STATE MACHINE : BONUS
+//===================================================================================================
+
+void MeinRobot::calculateClosestBonus(const MapInfo& info) {
+    if(info.bonus.empty() && info.getInRangeBonus().empty())
+    {
+        target = Point2D(0,0);
+    }
+
+    else if (info.getInRangeBonus().empty()){ //CHECK spawned bonus if none are in field of view
+        double shortestDistance = std::numeric_limits<double>::max();
+        for (const auto &outVisionCoord: info.bonus) {
+            double distance = outVisionCoord.mag();
+            if(distance < shortestDistance ) {
+                target = outVisionCoord;
+                shortestDistance = distance;
+            }
+        }
+    }
+    else if (info.getInRangeBonus().size() == 1){ // If only one in range go for it
+        target = info.getInRangeBonus().front();
+    }
+    else if (info.getInRangeBonus().size() > 1){ // if many check distances
+        double shortestDistance = std::numeric_limits<double>::max();
+        for (const auto &bonusCoord: info.getInRangeBonus()) {
+            double distance = bonusCoord.mag();
+            if(distance < shortestDistance ) {
+                target = bonusCoord;
+                shortestDistance = distance;
+            }
+        }
+    }
+}
 
 //===================================================================================================
 // SECTION : STRATEGY
 //===================================================================================================
 std::string MeinRobot::strategy() {
-    Point2D direction;
+    //Point2D direction;
     std::string newAction = " ";
     switch (state) {
         case STATE_MACHINE::SEARCH:
@@ -208,8 +252,9 @@ std::string MeinRobot::strategy() {
             }
             break;
         case STATE_MACHINE::RETRIEVE:
-            target = bonusState.updateState(mapInfo);
-            newAction = target == Point2D(0, 0) ? move(Point2D(1, 1)) : move(target);
+           //target = bonusState.updateState(mapInfo);
+            newAction = move(target);
+            //newAction = (target == Point2D(0, 0)) ? move(Point2D(1, 1)) : move(target);
             break;
         case STATE_MACHINE::KILL:
             target = mapInfo.getInRangeRobots().empty() ? target : mapInfo.getInRangeRobots().front();

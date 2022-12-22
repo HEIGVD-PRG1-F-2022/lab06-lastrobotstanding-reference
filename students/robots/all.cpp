@@ -14,10 +14,8 @@
 #include "robot_8/MonRobotGPKD.cpp"
 #include "robot_9/MyRobot.cpp"
 #include "robot_10/RobotTeamR.cpp"
-#include "robot_11/RandomRoboto.cpp"
-#include "robot_11/Roboto.cpp"
-#include "robot_12/SoftIntersRobot.cpp"
-#include "robot_13/Pipou.cpp"
+#include "robot_11/SoftIntersRobot.cpp"
+#include "robot_12/Pipou.cpp"
 #include <librobots/Robot.h>
 #include <vector>
   
@@ -35,8 +33,6 @@ std::vector<Robot*> students(){
   robots.push_back(new MonRobotGPKD());
   robots.push_back(new MyRobot());
   robots.push_back(new RobotTeamR());
-  robots.push_back(new RandomRoboto());
-  robots.push_back(new Roboto());
   robots.push_back(new SoftIntersRobot());
   robots.push_back(new Pipou());
   return robots;

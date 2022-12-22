@@ -3,34 +3,38 @@
 //
 #include "MyRobot.h"
 #include <iostream>
-#include <string>
-#include <algorithm>
 
 using namespace std;
 
 void MyRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_init,
-                        unsigned power_init) {
+                        unsigned power_init)
+{
     width = width_init;
     height = height_init;
     energy = energy_init;
     power = power_init;
+    lastPower = power;
     countRound = 0;
 }
 
-[[nodiscard]] string MyRobot::name() const {
-    return "Mentally Challenged Robot";
+[[nodiscard]] string MyRobot::name() const
+{
+    return "Mentally Challenged Robot: ";
 }
 
-string MyRobot::action(std::vector<std::string> updates) {
+string MyRobot::action(std::vector<std::string> updates)
+{
     countRound++;
     std::vector<Direction> robots, boni;
     Direction directionDamage;
-    for (const auto &update: updates) {
+    for (const auto &update: updates)
+    {
         Message m(update);
-        switch (m.msg) {
+        switch (m.msg)
+        {
             case MessageType::UpdateBoard:
-                robots.insert(robots.begin(), m.robots.begin(), m.robots.end());
-                boni.insert(boni.begin(), m.boni.begin(), m.boni.end());
+                setMemoryList(m.robots, robotsList);
+                setMemoryList(m.boni, boniList);
                 break;
             case MessageType::UpdateDamage:
                 energy -= m.energy;
@@ -42,228 +46,253 @@ string MyRobot::action(std::vector<std::string> updates) {
                 power += m.power;
                 break;
             case MessageType::UpdateBonus:
-                if (!isDuplicate(m.boni.at(0), boni))
-                    boni.insert(boni.begin(), m.boni.begin(), m.boni.end());
+                setMemoryList(m.boni, boniList);
+                //if (!isDuplicate(m.boni.at(0), boni))
+                //    boni.insert(boni.begin(), m.boni.begin(), m.boni.end());
                 break;
-                // answer from radar
             case MessageType::UpdateRobot:
-                if (!isDuplicate(m.robots.at(0), robots))
-                    robots.insert(robots.begin(), m.robots.begin(), m.robots.end());
+                setMemoryList(m.robots, robotsList);
+                //if (!isDuplicate(m.robots.at(0), robots))
+                //    robots.insert(robots.begin(), m.robots.begin(), m.robots.end());
                 break;
         }
     }
+    Direction ClosestRobot = getClosest(robotsList);
+    Direction ClosestRobotInverse = ClosestRobot.neg();
+    Direction ClosestBonus = getClosest(boniList);
+    double dClosestRobot = ClosestRobot.mag();
+    double dClosestBonus = ClosestBonus.mag();
 
-    /*
-    //start of Ander's maybe not so smart idea
-    double bonusScore = 0.0;
-    Direction closestBonus;
-    if(!boni.empty())
-    {
-        bonusScore = getClosest(boni).mag();
-        closestBonus = getClosest(boni);
-    }
-    double robotScore = 0.0;
-    Direction closestRobot;
-    if(!robots.empty())
-    {
-        robotScore = getClosest(robots).mag();
-        closestRobot = getClosest(robots);
-    }
-    double energyScore = double(energy) ;
-    double powerScore = double(power);
-    // let's sum all this up to evaluate the general behaviour of the robot
-        //summing all this up may not be the correct idea
-    double sumScore;
-    // it would be a good idea to figure out what is the max amount realistically possible for @sumScore
-    // bonusScore depends on the distance of the bonus and should be at most equal to Direction(gridWidth/2,gridHeight/2).mag
-    // same for robotScore
-    // energyScore  will span from 1 to something like 10 or 20, so let's approximate to 15
-    // same behaviour for powerscore, from 1 to something like 6, let's approximate to 3
-    // this leaves us with max values to clamp or calculations
-    double weightBonusScore = 20.0;
-    double weightRobotScore = 20.0;
-    double weightEnergyScore = 15.00 ;
-    double weightPowerScore = 3.00;
-    bonusScore  = clamp(bonusScore,0.0,20.0)/20.0;
-    robotScore  = clamp(robotScore, 0.0, 20.0)/20.0;
-    energyScore = clamp(energyScore, 0.0, 15.0)/15.0;
-    powerScore  = clamp(powerScore,0.0, 6.0)/6.0;
-    // bonusScore combined with energyScore should push the robot forward (pursue bonus
-    // robotScore combined with powerscore should push the robot forward (pursue or attack
-    // energyScore should refrain the robot from pursuing or attacking
-    // powerScore should push the robot to pursue or attack
-    sumScore = (robotScore + powerScore) - (bonusScore + energyScore);
-
-    *//*
-    switch (int(sumScore))
-    {
-
-    }
-    *//*
-
+    int radarThreshold = 0;
     switch (energy)
     {
-        case 0 ... 3:
-            //priority 1 : don't die -> flee from any robots
-            //priority 2 : regain energy -> go to bonus
-            if(bonusScore > robotScore)
-            {
-                moveTo(closestBonus);
-            }
-            else
-            {
-                moveTo(closestRobot.neg());
-            }
+        case 1 ... 3:
+            radarThreshold = 32;
             break;
-        case 4 ... 6:
-            //priority 1 : regain energy -> go to bonus
-            //priority 2 : gain power -> go to bonus
-            //priority 3 : don't die -> flee from any robots
-            //priority 4 : pursue enemies
-            break;
-        case 7 ... 10:
-            //priority 1 : pursue enemies
-            //priority 2 : gain power -> go to bonus
-            //priority 3 : regain energy -> go to bonus
+        case 4 ... 7:
+            radarThreshold = 16;
             break;
         default:
+            radarThreshold = 8;
             break;
     }
-    // end of Ander's really dumb idea
-*/
-    // algorithm
-    //is enemy robot fleeing ?
-
-    //pursue it if so
-    double dClosestRobot = getClosest(robots).mag();
-    double dClosestBonus = getClosest(boni).mag();
-    countRound++;
-    if (dClosestRobot <= 1 and dClosestRobot != 0) { //If a robot is in the attack range, attack
-        return Message::actionAttack(getClosest(robots));
-    }
-    if (countRound >= 8 and
-        energy > 4) { //After an amount of time, do a radar unless the robot have a low energy, just runaway
+    if (countRound >= radarThreshold and robots.empty())
+    {
         countRound = 0;
+        robotsList.clear();
         return Message::actionRadar();
     }
-    if (target.mag() == 0.0) {
-        return wander();
-    }
-    if (energy < 4) //Energy Low
+
+    if (power != lastPower)
     {
-        if (3 * dClosestBonus < dClosestRobot) { //Try to get a bonus if the robot is not too close
-            Direction target(getClosest(boni));
-            return moveTo(target);
-        } else { //Runaway
-            Direction escapeDirection(getClosest(robots));
-            escapeDirection = escapeDirection.neg();
-            return moveTo(escapeDirection);
-        }
-    } else if (energy < 7 and energy >= 4) {//Medium Energy TO CHECK
-        if (dClosestRobot < dClosestBonus and power > 3) {
-            return moveTo(getClosest(robots).unitary());
-        }
-        if (dClosestBonus < dClosestRobot) {
-            return moveTo(getClosest(boni).unitary());
-        }
-        return wander();
-    } else if (energy > 7) { //High Energy
-        if ((2 * dClosestBonus < dClosestRobot and power < 4)) {
-            return moveTo(getClosest(boni).unitary());
-        } else if (dClosestRobot < dClosestBonus) {
-            if (countRound < 8) {
-                return moveTo(getClosest(robots).unitary());
-            }
-            return Message::actionRadar();
-        } else { //Cas où le robot et le bonus sont équidistants
-            return wander();
-        }
-
-
-        if (power > 4) {
-            if (dClosestBonus < dClosestRobot) //If robot closer than bonus : chase robot
-            {
-                if (countRound == 8) //Every 8 rounds, do a radar
-                {
-                    target = getClosest(robots).unitary();
-                }
-                return moveTo(target);
-            } else if (dClosestBonus > dClosestRobot) //If bonus closer than robot : go to bonus
-            {
-                target = getClosest(boni).unitary();
-            } else // bonus as close as robot
-            {
-
-            }
-            //Go to Robot instead of bonus
-        } else if (power > 4 and dClosestRobot > 2) {
-            if (countRound == 6) {
-                countRound = 0;
-                return Message::actionRadar();
-            } else {
-                return wander();
-            }
-        } else {
-            //Go to bonus over robots
-            if (countRound == 5) {
-                countRound = 0;
-                Direction d(0, 0);
-                if (target == d) {
-                    return wander();
-                }
-                return moveTo(target);
-                /*target = getClosest(boni).unitary();
-                    return moveTo(target);*/
-            }
-        }
-        // return move to target.unitary ???
-    } else {
-        return wander();
+        boniList.clear();
+        lastPower = power;
     }
-}
+    if (robotsList.empty())
+    {
+        return Message::actionRadar();
+    }
+    else
+    {
+        if(dClosestRobot * 2.0 < dClosestBonus)
+        {
+            if(ClosestRobot.mag() <= 2.82843)
+            {
+                return Message::actionAttack(ClosestRobot.neg());
+            }
+            return Message::actionMove(ClosestRobot.unitary().neg());
+        }
+        else
+        {
+            return Message::actionMove(ClosestBonus.unitary());
+        }
+    }
 
-//finalize go to according to currrent target
+
 /*
-     * Damage Multiplier Map
-        1 1 1 1 1
-        1 2 2 2 1
-        1 2 R 2 1
-        1 2 2 2 1
-        1 1 1 1 1
-     */
+    // hold up
+    {
+        if (target.mag() < 2.0 and target == ClosestRobot)
+        {
+            return Message::actionAttack(target);
+        } else
+        {
+            if (energy > 7)
+            {
+                //energy high
+                if (power > 3)
+                {
+                    //power high
+                    if (dClosestRobot != 0 and dClosestRobot < 3)
+                    {
+                        return Message::actionAttack(ClosestRobot);
+                    }
+                    target = ClosestRobot;
+                } else if (power >= 2)
+                {
+                    //power mid
+                    if (dClosestRobot <= dClosestBonus)
+                    {
+                        target = ClosestRobot;
+                    } else
+                    {
+                        target = ClosestBonus;
+                    }
+                } else
+                {
+                    // power low
+                    if (dClosestRobot >= 2 * dClosestBonus)
+                    {
+                        target = ClosestBonus;
+                    } else
+                    {
+                        target = ClosestRobot;
+                    }
+                }
+            } else if (energy < 7 and energy >= 4)
+            {
+                //energy mid
 
-string MyRobot::wander() {
-    // wander off randomly
-    int randX = -1 + (std::rand() % (1 - (-1) + 1));
-    int randY = -1 + (std::rand() % (1 - (-1) + 1));
-    Direction d(randX, randY);
-    return Message::actionMove(d);
-}
+                if (power > 3)
+                {
+                    //power high
+                    if (dClosestRobot <= dClosestBonus)
+                    {
+                        target = ClosestRobot;
+                    } else
+                    {
+                        target = ClosestBonus;
+                    }
+                } else if (power >= 2)
+                {
+                    //power mid
+                    target = ClosestBonus;
+                } else
+                {
+                    // power low
+                    target = ClosestBonus;
+                }
+            } else
+            {
+                // energy low
 
-string MyRobot::moveTo(Direction target) {
-    return Message::actionMove(target);
-}
-
-Direction MyRobot::getClosest(vector<Direction> directions) {
-    if (directions.empty()) {
-        return Direction(0, 0);
-    } else {
-        Direction min = directions.at(0);
-        for (auto i: directions) {
-            if (i.mag() < min.mag()) {
-                min = i;
+                if (power > 3)
+                {
+                    //power high
+                    if (dClosestRobot > 2 * dClosestBonus)
+                    {
+                        target = ClosestBonus;
+                    } else
+                    {
+                        target = ClosestRobotInverse;
+                    }
+                } else
+                {
+                    // power low
+                    if (dClosestRobot > 3 * dClosestBonus)
+                    {
+                        target = ClosestBonus;
+                    } else
+                    {
+                        target = ClosestRobotInverse;
+                    }
+                }
             }
         }
-        return min;
+        return moveTowards(target);
     }
+    // hold down
+    */
+}
+
+void MyRobot::setMemoryList(vector<Direction> listShortTerm, vector<Direction> &listLongTerm)
+{
+    for (auto i: listShortTerm)
+    {
+        if (isDuplicate(i, listLongTerm))
+        {
+            // robot list of the current turn contains an element i that is already present in the robot's long term memory
+        } else
+        {
+            listLongTerm.push_back(i);
+        }
+    }
+    for(auto i: listLongTerm)
+    {
+        if(isMissing(i,listShortTerm))
+        {
+            if(i.mag() <= 2.82843)
+            {
+                std::remove(listLongTerm.begin(), listLongTerm.end(),i);
+            }
+        }
+    }
+}
+
+string MyRobot::moveTowards(Direction target)
+{
+    return Message::actionMove(target.unitary());
+}
+
+Direction MyRobot::getRandomDirection()
+{
+    int randX = 0;
+    int randY = 0;
+    do
+    {
+        randX = -1 + (std::rand() % (1 - (-1) + 1));
+        randY = -1 + (std::rand() % (1 - (-1) + 1));
+    } while (randX == 0 and randY == 0);
+    Direction d(randX * 10, randY * 10);
+    return d;
+}
+
+Direction MyRobot::getClosest(vector<Direction> directions)
+{
+    if (directions.empty())
+    {
+        return getRandomDirection();
+    } else
+    {
+        vector<double> magnitudes = {};
+        Direction min = directions.at(0);
+        for (auto i: directions)
+        {
+            magnitudes.push_back(i.mag());
+        }
+        double smallestMag = *min_element(magnitudes.begin(), magnitudes.end());
+        return directions.at(getIndex(magnitudes, smallestMag));
+    }
+}
+
+int MyRobot::getIndex(vector<double> v, double K)
+{
+    auto it = find(v.begin(), v.end(), K);
+
+    int index = it - v.begin();
+    return index;
 }
 
 //si duplicate, remove, else, keep
-bool MyRobot::isDuplicate(Direction direction, vector<Direction> directions) {
-    for (auto i: directions) {
-        if (direction == i) {
+bool MyRobot::isDuplicate(Direction direction, vector<Direction> directions)
+{
+    for (auto i: directions)
+    {
+        if (direction == i)
+        {
             return true;
         }
     }
     return false;
+}
+
+bool MyRobot::isMissing(Direction direction, vector<Direction> directions)
+{
+    if (std::find(directions.begin(), directions.end(), direction) != directions.end())
+    {
+        return false;
+    } else
+    {
+        return true;
+    }
 }

@@ -24,16 +24,11 @@ void MyRobot1::setConfig(size_t width_init, size_t height_init, unsigned energy_
  */
 string MyRobot1::action(vector<string> updates) {
     for (const auto &update: updates) {
-
-        /*vector<string> params = split(update, " ", 2);
-// << "Command: " << params.at(0) << endl;
-// << "Parameters: " << params.at(1) << endl;*/
-
         vector<Direction> robots, boni;
 
         Message msg(update);
-        robots.insert(msg.robots.begin(), msg.robots.end(), msg.robots.begin());
-        boni.insert(msg.boni.begin(), msg.boni.end(), msg.boni.begin());
+        robots.insert(robots.end(), msg.robots.begin(), msg.robots.end());
+        boni.insert(boni.end(), msg.boni.begin(), msg.boni.end());
 
         switch (msg.msg) {
             case MessageType::UpdateDamage:
@@ -53,14 +48,43 @@ string MyRobot1::action(vector<string> updates) {
         }
 
         if (!boni.empty()) {
-            //Go for bonus
+            // TODO: Choose the nearest bonus.
+            return Message::actionMove(boni[0]);
         }
-        if (energy <= 5) {
-            //run away
+        else if (energy < 6) {
+            if (!robots.empty()){
+                return Message::actionMove(robots[0].neg());
+            }
+        }
+        else if(!robots.empty()){
+            return Message::actionAttack(robots[0]);
+        }
+        else{
+            roundCounter++;
+            if (!robots.empty() || power >= 3   )
+            {
+                changeDirection(false);
+            }
+            if (roundCounter % 10 == 0){
+                changeDirection();
+            }
+            return Message::actionMove(dir);
         }
     }
+}
 
-    return Message::actionWait();
+void MyRobot1::changeDirection(bool waitAllowed) {
+    if (waitAllowed){
+        dir = Direction ((rand() % 3) - 1,(rand() % 3) - 1);
+    }
+    else {
+        int x ,y;
+        do {
+            x = (rand() % 3) - 1;
+            y = (rand() % 3) - 1;
+        } while (x == 0 && y == 0);
+        dir = Direction (x, y);
+    }
 }
 
 /**

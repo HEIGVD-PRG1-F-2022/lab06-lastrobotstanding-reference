@@ -23,7 +23,6 @@
 class MapInfo {
     //Use by radar
     size_t numRobotDetected = 0;
-    //Use for bonus update according to robot move
 
     std::vector<Point2D> inRangeRobots;
     std::vector<Point2D> inRangeBonus;
@@ -31,9 +30,6 @@ class MapInfo {
     size_t radiusCheck = 0;
     size_t width = 0;
     size_t height = 0;
-
-    //size_t numRobotsInRange = 0;
-    //size_t numBonusInRange = 0;
 
     void updateBonus(const Point2D &lastMove);
 
@@ -52,10 +48,10 @@ public:
     [[nodiscard]] std::vector<Point2D> getInRangeRobots() const { return inRangeRobots; }
     [[nodiscard]] std::vector<Point2D> getInRangeBonus() const { return inRangeRobots; }
 
-    void setLastMove(const Point2D &move);
-    void updateInformations();
+    //void setLastMove(const Point2D &move);
+    void updateInformations(const std::vector<std::vector<std::string>>& board);
     void reset();
-    void registerInRangeObjects();
+    void registerInRangeObjects(const std::vector<std::vector<std::string>>& board);
     void updateBonusOnMap(const Point2D &enemyPosition);
 
     void addBonus(const Point2D &coord);
