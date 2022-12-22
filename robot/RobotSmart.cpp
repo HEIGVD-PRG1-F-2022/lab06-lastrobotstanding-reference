@@ -30,8 +30,8 @@ void RobotSmart::setConfig(size_t init_width, size_t init_height, unsigned init_
 
 string RobotSmart::fleeFrom(Direction dir) {
     random_device rd;
-    uniform_int_distribution<double> val(-M_PI / 2, M_PI / 2);
-    return Message::actionMove(dir.neg().rotate(val(rd)));
+    uniform_int_distribution<int> val(-10, 10);
+    return Message::actionMove(dir.neg().rotate(M_PI_2 * val(rd) / 10));
 }
 
 void normalize(vector<Direction> &list) {

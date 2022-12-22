@@ -56,9 +56,8 @@ struct cfg {
 Game setupGame(cfg c) {
     Game G(c.standard);
     G.addRobot(new RobotDiagonal());
-    G.addRobot(new RobotDiagonal());
-    G.addRobot(new RobotDiagonal());
-    G.addRobot(new RobotDiagonal());
+    G.addRobot(new RobotWait());
+
     bool addSmart = c.smart == YES;
     if (c.smart == RANDOM) {
         std::random_device rd;
@@ -66,7 +65,7 @@ Game setupGame(cfg c) {
         addSmart = w(rd) == 1;
     }
     if (addSmart) { G.addRobot(new RobotSmart()); }
-    G.addRobot(new RobotWait());
+
     if (c.students) {
         for (const auto &robot: students()) { G.addRobot(robot); }
     }
