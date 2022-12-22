@@ -24,38 +24,12 @@ if (EXISTS libdio/)
 else ()
     FetchContent_Declare(libdio
             GIT_REPOSITORY https://github.com/HEIGVD-PRG1-F-2022/libdio.git
-            GIT_TAG v0.2.4
+            GIT_TAG v0.2.5
             )
     FetchContent_MakeAvailable(libdio)
 endif ()
 
-#set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk)
-
 add_library(Reference STATIC Game.cpp robot/RobotSmart.cpp robot/RobotsSimple.cpp students/robots/all.cpp)
-
-#add_library(students STATIC
-#        students/robots/robot_1/MyRobot1.cpp
-#        students/robots/robot_2/BonusState.cpp
-#        students/robots/robot_2/MapInfo.cpp
-#        students/robots/robot_2/MeinRobot.cpp
-#        students/robots/robot_2/Point.cpp
-#        )
-#add_library(students2 STATIC
-#        students/robots/robot_3/action.cpp
-#        students/robots/robot_3/point.cpp
-#        students/robots/robot_3/sonny_robot.cpp
-#        students/robots/robot_4/MonRobot.cpp
-#        students/robots/robot_5/RobotFB.cpp
-#        students/robots/robot_5/RobotFB_diag.cpp
-#        students/robots/robot_6/BorisGuillaumator.cpp
-#        students/robots/robot_7/MonRobotGPKD.cpp
-#        students/robots/robot_8/RobotTeamR.cpp
-#        students/robots/robot_9/RandomRoboto.cpp
-#        students/robots/robot_9/Roboto.cpp
-#        students/robots/robot_10/SoftIntersRobot.cpp
-#        )
-#target_link_libraries(students PRIVATE librobots libdio)
-#target_link_libraries(students2 PRIVATE librobots libdio)
 
 add_executable(ReferenceGame main.cpp)
 

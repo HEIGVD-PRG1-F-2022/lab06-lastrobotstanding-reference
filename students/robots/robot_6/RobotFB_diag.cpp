@@ -50,7 +50,6 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
                         alentour.at(i).at(j) = lignes.at(entite);
 
                         if (lignes.at(entite) == 'B') {
-//<<"Bonus A détecté"<<std::endl;
                             flagB = true;
                             posBX = (int)i - 2;//cast en int pour réduire les warnings
                             posBY = (int)j - 2;
@@ -59,7 +58,7 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
                             flagR = 1;//dis qu'il y a un robot avec un danger bas car attaque x1
                             posRX = (int)i - 2;//cast en int pour réduire les warnings
                             posRY = (int)j - 2;
-                            if((i<=3&&i>=1) || (j<=3&&j>=1) ){ //si le robot est juste à coté de nous
+                            if((i==3||i==1) && (j==3||j==1) ){ //si le robot est juste à coté de nous
                                 flagR = 2;//dis qu'il y a un robot avec un danger haut bas car attaque x2
                             }
                         }
@@ -108,7 +107,6 @@ void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY,
             }
 
             if (distanceMin < 15){//si le bonus est assez proche
-//<<"Bonus B détecté"<<std::endl;
                 flagB = true;
             }
 
@@ -123,7 +121,7 @@ std::string realisationAction(const int &flagR, const int &posRX, const int &pos
     int dX,dY;
     std::string retour;
 
-    if( flagR != 2 && flagB){//si il y a un bonus détecter et qu'il n'est pas trop loin et qu'il n'y a pas de menace importante d'attaque -> va prendre le bonus
+    if( (flagR == 0 || flagR == 1)  && flagB){//si il y a un bonus détecter et qu'il n'est pas trop loin et qu'il n'y a pas de menace importante d'attaque -> va prendre le bonus
         //sens déplacement sur axe Y
         if(posBY > 0){//si le bonus est en dessus, monte
             dY = 1;
@@ -150,7 +148,8 @@ std::string realisationAction(const int &flagR, const int &posRX, const int &pos
         retour = "attack " + std::to_string(posRX) + "," + std::to_string(posRY);
     }
     else{//pas de bonus ni de robot -> avance en diagonal
-        retour = "move 1,1";
+        //retour = "move 1,1";
+        retour = "wait";
     }
 
 

@@ -123,13 +123,13 @@ void MonRobotGPKD::powerUpdate(const string &s) {
    power += (unsigned) stoi(s);
 }
 
-Direction MonRobotGPKD::bonusUpdate(const string &s) {
+/*Direction MonRobotGPKD::bonusUpdate(const string &s) {
 
 }
 
 Direction MonRobotGPKD::robot(const string &s) {
 
-}
+}*/
 
 string MonRobotGPKD::strategy(vector<vector<int>> vUpdates) {
    vector<Position> vBonus;

@@ -18,7 +18,7 @@ void MyRobot::setConfig(size_t width_init, size_t height_init, unsigned energy_i
 }
 
 [[nodiscard]] string MyRobot::name() const {
-    return "MCR";
+    return "MCR: ";
 }
 
 string MyRobot::action(std::vector<std::string> updates) {

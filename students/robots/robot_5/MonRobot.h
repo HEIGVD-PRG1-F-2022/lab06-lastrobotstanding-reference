@@ -24,15 +24,12 @@ public:
     // Créer un nouveau robot et indique la taille d1u terrain de jeu ainsi que
     // l’énergie initiale du robot et la puissance de la frappe.
     MonRobot();
-
     // Une étape dans le jeu: les ‘updates’ sont des informations sur 
     // l’environnement du robot. Le robot retourne un ou plusieurs string
     // pour indiquer ses actions.
     std::string action(std::vector<std::string> updates) override;
-
     // Retourne le nom de ce robot.
     [[nodiscard]] std::string name() const override;
-
     /**
      * fonction qui permet la config du Robot
      * @param width_init largeur du terrain de jeu
@@ -55,13 +52,13 @@ private:
      * largeur du terrain de jeu
      * variable non-utilisée car nous n'avons pas fait de radar
      */
-    size_t dx;
+    [[maybe_unused]] size_t dx;
 
     /**
      * hauteur du terrain de jeu
      * variable non-utilisée car nous n'avons pas fait de radar
      */
-    size_t dy;
+    [[maybe_unused]] size_t dy;
 
     /**
      * puissance d'attaque du robot
@@ -81,27 +78,39 @@ private:
      */
     static std::string attack(int xMove, int yMove);
 
+    /**
+     * fonction de déplacement
+     * @param xMove coordonnée x
+     * @param yMove coordonnée y
+     * @return le string "move x, y"
+     */
     static std::string move(int xMove, int yMove);
 
-    static std::vector<std::vector<int>> objectNear(const std::vector<std::vector<char>> &board, char objectSymbol);
+    /**
+     * fonction qui détecte les robots et/ou bonus dans les 25 cases autour
+     * @param board le tableau
+     * @param objectSymbol un char 'R' ou 'B' pour savoir si on recherche un robot ou un bonus
+     * @return un tableau vector<vector<int>> avec les coordonées des robots ou celles des bonus
+     */
+    static std::vector<std::vector<int>> objectNear(const std::vector<std::vector<char>>& board, char objectSymbol);
 
     /**
      * Toutes des fonctions qui permettent de move dans une certaine direction
      * @return le string "move x, y"
      *
-     * les fonctions pas utilisées font des warnings, mais on les garde au cas où on changerait de stratégies
+     * les fonctions pas utilisées sont gardées au cas où on changerait de stratégies
      */
-    static std::string goForward();
+    [[maybe_unused]] static std::string goForward();
 
-    static std::string goBackward();
+    [[maybe_unused]] static std::string goBackward();
 
-    static std::string goLeft();
+    [[maybe_unused]] static std::string goLeft();
 
-    static std::string goRight();
+    [[maybe_unused]] static std::string goRight();
 
     static std::string goUpLeft();
 
-    static std::string goUpRight();
+    [[maybe_unused]] static std::string goUpRight();
 
     static std::string goBackLeft();
 

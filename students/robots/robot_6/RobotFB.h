@@ -22,7 +22,7 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 
 #include "librobots/Robot.h"
 
-class RobotFB : public Robot {
+class RobotFB {
 
     friend void traitementAction(std::vector<std::string> &updates, int &posRX, int &posRY, int &flagR,std::vector<std::vector<std::string>> &alentour);
     friend std::string realisationAction(const int &flagR, const int &posRX, const int &posRY);
@@ -50,7 +50,7 @@ public:
     // l’énergie initiale du robot et la puissance de la frappe.
 
     void setConfig(size_t width_init = 0, size_t height_init = 0, unsigned energy_init = 10,
-                   unsigned power_init = 1) override {
+                   unsigned power_init = 1)  {
         width = width_init;
         height = height_init;
         energy = energy_init;
@@ -60,10 +60,10 @@ public:
     // Une étape dans le jeu : les ‘updates’ sont des informations sur
     // l’environnement du robot. Le robot retourne un ou plusieurs string
     // pour indiquer ses actions.
-    std::string action(std::vector<std::string> updates);
+    std::string action(std::vector<std::string> updates) ;
 
     // Retourne le nom de ce robot.
-    std::string name() const override;
+    std::string name() const ;
 
 private:
     std::vector<std::vector<std::string>> alentour;

@@ -30,6 +30,16 @@ string MyRobot1::action(vector<string> updates) {
         robots.insert(robots.end(), msg.robots.begin(), msg.robots.end());
         boni.insert(boni.end(), msg.boni.begin(), msg.boni.end());
 
+        // Sort the robots by nearest.
+        std::sort(robots.begin(), robots.end(), [](Direction first, Direction second) -> bool {
+            return first.mag() < second.mag();
+        });
+
+        // Sort the bonus by nearest.
+        std::sort(boni.begin(), boni.end(), [](Direction first, Direction second) -> bool {
+            return first.mag() < second.mag();
+        });
+
         switch (msg.msg) {
             case MessageType::UpdateDamage:
                 energy -= msg.energy;
@@ -41,6 +51,8 @@ string MyRobot1::action(vector<string> updates) {
             case MessageType::UpdatePower:
                 power += msg.power;
             case MessageType::UpdateBonus:
+
+                break;
             case MessageType::UpdateBoard:
             case MessageType::UpdateRobot:
             default:
@@ -48,7 +60,6 @@ string MyRobot1::action(vector<string> updates) {
         }
 
         if (!boni.empty()) {
-            // TODO: Choose the nearest bonus.
             return Message::actionMove(boni[0]);
         }
         else if (energy < 6) {
@@ -61,11 +72,11 @@ string MyRobot1::action(vector<string> updates) {
         }
         else{
             roundCounter++;
-            if (!robots.empty() || power >= 3   )
+            if (!robots.empty() || power >= 3 )
             {
                 changeDirection(false);
             }
-            if (roundCounter % 10 == 0){
+            if (roundCounter % 5 == 0 || (dir.getdX() == 0 && dir.getdY() == 0)){
                 changeDirection();
             }
             return Message::actionMove(dir);
@@ -74,17 +85,15 @@ string MyRobot1::action(vector<string> updates) {
 }
 
 void MyRobot1::changeDirection(bool waitAllowed) {
-    if (waitAllowed){
-        dir = Direction ((rand() % 3) - 1,(rand() % 3) - 1);
-    }
-    else {
-        int x ,y;
-        do {
-            x = (rand() % 3) - 1;
-            y = (rand() % 3) - 1;
-        } while (x == 0 && y == 0);
-        dir = Direction (x, y);
-    }
+    int x ,y;
+    do {
+        // = [0-2] - 1
+        // Possible values: -1, 0, 1
+        x = (rand() % 3) - 1;
+        y = (rand() % 3) - 1;
+    } while (x == 0 && y == 0 && !waitAllowed );
+    dir = Direction (x, y);
+
 }
 
 /**

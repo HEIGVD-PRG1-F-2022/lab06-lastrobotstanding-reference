@@ -21,8 +21,6 @@
 
 
 class MapInfo {
-    //Use by radar
-    size_t numRobotDetected = 0;
 
     std::vector<Point2D> inRangeRobots;
     std::vector<Point2D> inRangeBonus;
@@ -31,11 +29,7 @@ class MapInfo {
     size_t width = 0;
     size_t height = 0;
 
-    void updateBonus(const Point2D &lastMove);
-
 public:
-    Point2D lastMove;
-
     std::vector<std::vector<std::string>> currentRadar;
     std::vector<std::vector<std::string>> currentBoard;
 
@@ -53,8 +47,7 @@ public:
     void reset();
     void registerInRangeObjects(const std::vector<std::vector<std::string>>& board);
     void updateBonusOnMap(const Point2D &enemyPosition);
-
-    void addBonus(const Point2D &coord);
+    void updateBonus(const Point2D &lastMove);
 };
 
 #endif//LASTROBOTSTANDING_MAPINFO_H

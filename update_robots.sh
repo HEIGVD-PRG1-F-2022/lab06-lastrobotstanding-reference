@@ -14,7 +14,7 @@ check_robots() {
     echo -e "\nTesting $robot"
     if (cd $TMPDIR; g++ -c -std=c++2a $BASEDIR/$robot/*.cpp -I $BASEDIR/librobots/include -I $BASEDIR/$robot); then
       echo "SUCCESS: $robot compiles robotfully"
-      if grep -e "class.*\: *public Robot" $robot/*.h; then
+      if grep -e "class.*\: *public Robot\W" $robot/*.h; then
         echo $robot >>$ROBOTS_SUCCESS
         echo "SUCCESS: $robot implements 'Robot' virtual class"
       else

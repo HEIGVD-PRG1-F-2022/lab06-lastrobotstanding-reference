@@ -215,7 +215,7 @@ RobotState *Game::play(bool show, bool debug) {
         if (show) {
             if (largestRobotAlive() < largestAlive) { Display::DString().clearScreen().print(); }
             display();
-            this_thread::sleep_for(1000ms / pow(log(round + 2), 2));
+            this_thread::sleep_for(500ms / pow(log(round + 10), 2));
         }
         sendUpdates(debug);
         if (standard) { idle_limit = unsigned(100 * robotsAlive()); }

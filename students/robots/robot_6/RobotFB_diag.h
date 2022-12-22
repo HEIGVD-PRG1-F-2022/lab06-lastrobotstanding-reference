@@ -54,7 +54,7 @@ public:
     // Une étape dans le jeu : les ‘updates’ sont des informations sur
     // l’environnement du robot. Le robot retourne un ou plusieurs string
     // pour indiquer ses actions.
-    std::string action(std::vector<std::string> updates);
+    std::string action(std::vector<std::string> updates) override;
 
     // Retourne le nom de ce robot.
     std::string name() const override;

@@ -1,8 +1,8 @@
 /*
 -----------------------------------------------------------------------------------
-Nom du fichier  : MonRobotGPKD.h
-Auteur(s)       : Guilherme Pinto, Keya Dessasa
-Date creation   : 29.11.2022
+Nom du fichier  : MonRobotGPKD_v2.h
+Auteur(s)       : Guilherme Pinto da Cunha da Mata
+Date creation   : 20.12.2022
 
 Description     : <à compléter>
 
@@ -12,8 +12,8 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 -----------------------------------------------------------------------------------
 */
 
-#ifndef REFACTOR_MONROBOTGPKD_H
-#define REFACTOR_MONROBOTGPKD_H
+#ifndef LABO6_ROBOTS_V2_MONROBOTGPKD_V2_H
+#define LABO6_ROBOTS_V2_MONROBOTGPKD_V2_H
 
 #include <cstdlib>
 #include <string>
@@ -22,7 +22,7 @@ Compilateur     : Mingw-w64 g++ 11.2.0
 #include "librobots/Robot.h"
 #include "librobots/Direction.h"
 
-class MonRobotGPKD {
+class MonRobotGPKD_v2 : public Robot{
 public:
 
    void setConfig(size_t width, size_t height, unsigned energy, unsigned power);
@@ -32,24 +32,28 @@ public:
    std::string name()const;
 
 private:
-   std::vector<int> selectionUpdate(const std::vector<std::string> &command);
+   void selectionUpdate(const std::vector<std::string> &command);
 
    void boardUpdate(const std::string& s);
-   std::vector<int> damageUpdate(const std::string &s, std::vector<int> vDamage);
+   void damageUpdate(const std::string &s);
    void energyUpdate(const std::string &s);
    void powerUpdate(const std::string &s);
-   Direction bonusUpdate(const std::string &s);
-   Direction robot(const std::string &s);
-   std::string strategy(std::vector<std::vector<int>> vUpdates);
+   void bonusUpdate(const std::string &s);
+   void robot(const std::string &s);
+   std::string strategy();
    static Position positionPlusProche(std::vector<Position> vPosition);
 
    size_t width, height;
-   unsigned energy, power;
+   unsigned energy, power, degats;
+   std::vector<Direction> bonus, radarR;
+   Position mouvDefaut = {-2,-2};
    static unsigned nbRobot;
    std::vector<std::vector<char>> board;
    std::string derniereAction;
+
    const size_t NB_COLONNES = 5, NB_LIGNE = 5;
 
 };
 
-#endif //REFACTOR_MONROBOTGPKD_H
+
+#endif //LABO6_ROBOTS_V2_MONROBOTGPKD_V2_H

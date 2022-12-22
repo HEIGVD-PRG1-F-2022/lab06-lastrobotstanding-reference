@@ -17,7 +17,6 @@
 #include <librobots/Message.h>
 #include <librobots/Robot.h>
 
-#include "BonusState.h"
 #include "MapInfo.h"
 #include "Point2D.h"
 
@@ -68,7 +67,6 @@ private:
     Point2D target = Point2D(0, 0);
 
     MapInfo mapInfo;
-    //BonusState bonusState;
 
     //board : bound to field of view 5X5
     std::vector<std::vector<std::string>> board;
@@ -83,7 +81,7 @@ private:
     void addRobot(const std::string &info);
 
     void gameEngineUpdate(std::vector<std::string> updates);
-    void updateStateMachine(int numEnemyAliveThisFrame);
+    void updateStateMachine();
     void calculateClosestBonus(const MapInfo& info);
     void resetValues();
 

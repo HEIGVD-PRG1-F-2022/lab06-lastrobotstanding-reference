@@ -104,7 +104,7 @@ void gameSilent(cfg c) {
                 .clearScreen()
                 .setColor(Display::Color::GREEN)
                 .append("Round: ")
-                .append(round)
+                .append(round + 1)
                 .append(" - Draws: ")
                 .append(draws)
                 .append("\n")

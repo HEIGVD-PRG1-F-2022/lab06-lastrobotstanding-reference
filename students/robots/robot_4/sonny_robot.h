@@ -29,6 +29,7 @@ class SonnyRobot : public Robot {
 
     size_t mapWidth = 0, mapHeight = 0;
     unsigned energy = 0, power = 0;
+    unsigned counter = 0;
 
     Point target;
     Point targetToLock();
@@ -40,6 +41,7 @@ class SonnyRobot : public Robot {
     std::vector<std::vector<std::string>> internalMap;
 
     std::vector<std::vector<std::string>> fromStringToMap(std::string map);
+
 
 
 public:
