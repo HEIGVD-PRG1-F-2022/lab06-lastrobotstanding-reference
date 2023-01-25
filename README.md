@@ -1,7 +1,8 @@
 # Robot reference game
 
 This is the reference implementation for the board of the robots.
-It should only be viewed by the teacher and his assistants.
+It contains both the game part and a `smart` robot.
+There is also a copy of all other robots in the game.
 
 ## CLI arguments
 
